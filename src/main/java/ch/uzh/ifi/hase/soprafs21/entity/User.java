@@ -4,13 +4,14 @@ import ch.uzh.ifi.hase.soprafs21.constant.UserStatus;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.*;
 
 /**
  * Internal User Representation
  * This class composes the internal representation of the user and defines how the user is stored in the database.
  * Every variable will be mapped into a database field with the @Column annotation
  * - nullable = false -> this cannot be left empty
- * - unique = true -> this value must be unqiue across the database -> composes the primary key
+ * - unique = true -> this value must be unique across the database -> composes the primary key
  */
 @Entity
 @Table(name = "USER")
@@ -33,6 +34,24 @@ public class User implements Serializable {
 
     @Column(nullable = false)
     private UserStatus status;
+
+    @Column(nullable = false, unique = true)
+    private String mail;
+
+    @Column(nullable = false)
+    private Date creationDate;
+
+    // This is a one to many relation hence the annotation
+    @Column
+    @OneToMany (mappedBy = "owner")
+    private List<Portfolio> ownedPortfolios = new ArrayList<Portfolio>();
+
+    // This is a many to many relation hence the annotation. In the JPA tutorial it says to use sets with many to many.
+    @Column
+    @ManyToMany (mappedBy = "traders")
+    private Set<Portfolio> collaboratingPortfolios = new HashSet<Portfolio>();
+
+    // ===============Getters and setters===============
 
     public Long getId() {
         return id;
@@ -73,4 +92,35 @@ public class User implements Serializable {
     public void setStatus(UserStatus status) {
         this.status = status;
     }
+
+    public String getMail() { return mail; }
+
+    public void setMail(String mail) { this.mail = mail; }
+
+    public Date getCreationDate() { return creationDate; }
+
+    public void setCreationDate(Date creationDate) { this.creationDate = creationDate; }
+
+    public List<Portfolio> getOwnedPortfolios() { return ownedPortfolios; }
+
+    // This might be redundant
+    public void setOwnedPortfolios(List<Portfolio> ownedPortfolios) { this.ownedPortfolios = ownedPortfolios; }
+
+    public Set<Portfolio> getCollaboratingPortfolios() { return collaboratingPortfolios; }
+
+    // This might be redundant
+    public void setCollaboratingPortfolios(Set<Portfolio> collaboratingPortfolios) { this.collaboratingPortfolios = collaboratingPortfolios; }
+
+    // ===============Additional Methods===============
+
+    // Adds Portfolio to owned portfolio list.
+    public void addOwnedPortfolio(Portfolio newPortfolio) {
+        this.ownedPortfolios.add(newPortfolio);
+    }
+
+    // Adds Portfolio to collaborating portfolio list.
+    public void addCollaboratingPortfolio(Portfolio joinedPortfolio) {
+        this.collaboratingPortfolios.add(joinedPortfolio);
+    }
+
 }
