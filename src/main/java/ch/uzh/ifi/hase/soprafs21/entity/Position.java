@@ -10,12 +10,11 @@ public class Position {
     @GeneratedValue
     private Long id;
 
-    @Column(nullable = false, name="containedPortfolioId")
-    private Long portfolioId;
+    @ManyToOne
+    private Portfolio belongingPortfolio;
 
     @Column(nullable = false)
     private BigDecimal totalWorth;
-
 
     public BigDecimal getTotalWorth() {
         return totalWorth;

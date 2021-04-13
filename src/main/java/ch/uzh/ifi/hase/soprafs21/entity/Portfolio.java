@@ -18,20 +18,14 @@ public class Portfolio implements Serializable {
     private Long id;
 
     // This is a one to many relation hence the annotation
-    @Column(nullable = false)
     @ManyToOne
     private User owner;
 
     // It is not nullable, because the owner is automatically also a trader
     // This is a many to many relation hence the annotation. In the JPA tutorial it says to use sets with many to many.
-    @Column(nullable = false)
-    @ManyToMany(mappedBy = "collaboratingPortfolios")
-    private Set<User> traders = new HashSet<User>();
 
-    @Column
-    @OneToMany
-    @JoinColumn(name="containedPortfolioId", referencedColumnName = "portfolioId")
-    private List<Position> positionList = new ArrayList<Position>();
+    @ManyToMany
+    private Set<User> traders = new HashSet<User>();
 
     @Column(nullable = false, unique=true)
     private String portfolioName;
@@ -74,14 +68,6 @@ public class Portfolio implements Serializable {
 
     public void setTraders(Set<User> traders) {
         this.traders = traders;
-    }
-
-    public List<Position> getPositionList() {
-        return positionList;
-    }
-
-    public void setPositionList(List<Position> positionList) {
-        this.positionList = positionList;
     }
 
     public String getPortfolioName() {
@@ -131,14 +117,7 @@ public class Portfolio implements Serializable {
         this. balance = this.balance.add(amount);
     }
 
-    public void addPosition(Position position){
-        positionList.add(position);
-    }
-
-    public void removePosition(Position position){
-        positionList.remove(position);
-    }
-
+    //Note: Percentage
     public BigDecimal getOverallPerformance(){
         return this.balance.subtract(BigDecimal.valueOf(1000000));
     }

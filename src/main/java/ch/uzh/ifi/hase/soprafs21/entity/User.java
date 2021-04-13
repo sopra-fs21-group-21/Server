@@ -14,7 +14,7 @@ import java.util.*;
  * - unique = true -> this value must be unique across the database -> composes the primary key
  */
 @Entity
-@Table(name = "USER")
+@Table(name = "PROFILE")
 public class User implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -42,14 +42,12 @@ public class User implements Serializable {
     private Date creationDate;
 
     // This is a one to many relation hence the annotation
-    @Column
     @OneToMany (mappedBy = "owner")
     private List<Portfolio> ownedPortfolios = new ArrayList<Portfolio>();
 
     // This is a many to many relation hence the annotation. In the JPA tutorial it says to use sets with many to many.
-    @Column
-    @ManyToMany (mappedBy = "traders")
-    private Set<Portfolio> collaboratingPortfolios = new HashSet<Portfolio>();
+    @ManyToMany
+    private Set<Portfolio> collaboratingPortfolios = new HashSet<>();
 
     // ===============Getters and setters===============
 
