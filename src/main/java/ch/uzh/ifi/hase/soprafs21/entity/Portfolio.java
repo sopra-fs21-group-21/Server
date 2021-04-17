@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs21.entity;
 
 import ch.uzh.ifi.hase.soprafs21.constant.PortfolioVisibility;
+import ch.uzh.ifi.hase.soprafs21.constant.PositionType;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -43,6 +44,9 @@ public class Portfolio implements Serializable {
 
     @Column(nullable = false)
     private Date creationDate;
+
+    @OneToMany
+    public List<Position> positions = new ArrayList<Position>();
 
     // ===============Getters and setters===============
 
@@ -110,15 +114,11 @@ public class Portfolio implements Serializable {
         this.creationDate = creationDate;
     }
 
-    // ===============Additional Methods===============
-
-    // Changes Balance by set amount. Works with loss (negative amount). Should update when an open/close is performed.
-    private void updateBalance(BigDecimal amount){
-        this. balance = this.balance.add(amount);
+    public List<Position> getPositions() {
+        return positions;
     }
 
-    //Note: Percentage
-    public BigDecimal getOverallPerformance(){
-        return this.balance.subtract(BigDecimal.valueOf(1000000));
+    public void setPositions(List<Position> positions) {
+        this.positions = positions;
     }
 }
