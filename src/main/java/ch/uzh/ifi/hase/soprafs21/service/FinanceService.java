@@ -53,7 +53,7 @@ public class FinanceService {
      * @param stock code/symbol of the stock
      * @return returns the latest trading price of the stock
      */
-    public static BigDecimal getStockPrice(String stock)
+    public static BigDecimal getStockPrice(String stock, String currency)
     {
 
         // I spent a bunch of hours on this and couldn't find a prettier way to add URI parameters
@@ -75,14 +75,12 @@ public class FinanceService {
         try {
             JSONObject body = new JSONObject(response.get().body());
             //body = body.getJSONObject("Global quote");
-            return body
+            BigDecimal originalPrice = body
                     .getJSONObject("Global Quote")
                     .getBigDecimal("05. price");
+            return convertPrice(stock, originalPrice, currency);
         }
-        catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        catch (ExecutionException e) {
+        catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
         return null;
@@ -113,7 +111,7 @@ public class FinanceService {
         {
             return price;
         }
-        BigDecimal exchange_rate = null;
+        BigDecimal exchange_rate;
         try {
             JSONObject body = new JSONObject(response.get().body());
             exchange_rate = body
@@ -121,10 +119,7 @@ public class FinanceService {
                     .getBigDecimal("5. Exchange Rate");
             return exchange_rate.multiply(price);
         }
-        catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        catch (ExecutionException e) {
+        catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
         return null;
