@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs21.service;
 
+import ch.uzh.ifi.hase.soprafs21.constant.PortfolioVisibility;
 import ch.uzh.ifi.hase.soprafs21.entity.Portfolio;
 import ch.uzh.ifi.hase.soprafs21.entity.Position;
 import ch.uzh.ifi.hase.soprafs21.repository.PortfolioRepository;
@@ -37,6 +38,24 @@ public class PortfolioService {
         throw new EntityNotFoundException("No portfolio associated to the ID");
     }
 
+    public List<Portfolio> getSharedPortfolios()
+    {
+        List<Portfolio> allPortfolios = portfolioRepository.findAll();
+        List<Portfolio> visiblePortfolios = new ArrayList<>();
+
+        for (Portfolio portfolio : allPortfolios)
+        {
+            if (portfolio.getPortfolioVisibility() == PortfolioVisibility.SHARED)
+            {
+                visiblePortfolios.add(portfolio);
+            }
+        }
+
+        // We will need to sort the list here
+
+        return visiblePortfolios;
+    }
+
     /**
      * Saves a new portfolio in the repository.
      * The input should specify at least owner, name, visibility.
@@ -44,9 +63,17 @@ public class PortfolioService {
     public Portfolio createPortfolio(Portfolio newPortfolio) {
         final int startingBalance = 100000;
 
+        // Check if the name is already in use
+        if (portfolioRepository.existsByPortfolioName(newPortfolio.getPortfolioName()))
+        {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "The name is not available :(");
+        }
+
+        // Add some extra information
         newPortfolio.setCreationDate(new Date());
         newPortfolio.setPortfolioCode(UUID.randomUUID().toString());
         newPortfolio.setBalance(BigDecimal.valueOf(startingBalance));
+
 
         newPortfolio = portfolioRepository.saveAndFlush(newPortfolio);
 

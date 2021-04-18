@@ -81,7 +81,10 @@ public class PositionService {
                 switch(position.getType())
                         {
                             case STOCK_SHORT:
-                                yield position.getAmount().multiply(price).subtract(position.getOpeningPrice());
+                                // (Opening price - current price) * amount
+                                yield position.getOpeningPrice()
+                                        .subtract(position.getPrice())
+                                        .multiply(position.getAmount());
                             default:
                                 yield position.getAmount().multiply(price);
                         }

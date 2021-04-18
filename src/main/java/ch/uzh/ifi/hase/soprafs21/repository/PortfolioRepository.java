@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository("portfolioRepository")
 public interface PortfolioRepository extends JpaRepository <Portfolio, Long> {
-
+    boolean existsByPortfolioName(String portfolioName);
 }
