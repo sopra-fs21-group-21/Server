@@ -12,7 +12,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -37,9 +39,22 @@ public class UserService {
         return this.userRepository.findAll();
     }
 
+    public User getUser(long id){
+        Optional<User> user = this.userRepository.findById(id);
+        if (user.isPresent()){
+            return user.get();
+        }
+        else{
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No such user exists");
+        }
+    }
+
     public User createUser(User newUser) {
         newUser.setToken(UUID.randomUUID().toString());
         newUser.setStatus(UserStatus.OFFLINE);
+
+        Date currentDate = new Date();
+        newUser.setCreationDate(currentDate);
 
         checkIfUserExists(newUser);
 
@@ -63,10 +78,58 @@ public class UserService {
 
     private void checkIfUserExists(User userToBeCreated) {
         User userByUsername = userRepository.findByUsername(userToBeCreated.getUsername());
+        User userByMail = userRepository.findByMail(userToBeCreated.getMail());
 
         String baseErrorMessage = "The %s provided %s not unique. Therefore, the user could not be created!";
-        if (userByUsername != null) {
+        if (userByUsername != null && userByMail != null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(baseErrorMessage, "username and e-mail", "are"));
+        }
+        else if (userByUsername != null){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(baseErrorMessage, "username", "is"));
+        }
+        else if (userByMail != null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(baseErrorMessage, "e-mail", "is"));
+        }
+    }
+
+    //Logs in user by checking credentials and changing status to ONLINE
+    public User logInUser(User userLoggingIn) {
+        User userByUsername = userRepository.findByUsername(userLoggingIn.getUsername());
+        if (userByUsername != null){
+            if (userLoggingIn.getPassword().equals(userByUsername.getPassword())) {
+                userByUsername.setStatus(UserStatus.ONLINE);
+                userRepository.save(userByUsername);
+                return userByUsername;
+            }
+            else {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Wrong password");
+            }
+        }
+        else{
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No such user exists");
+        }
+    }
+
+    //Changes Username/Password/Mail of a user using an id and a user object with the proposed changes
+    public void modifyUser(User newUserData, Long userID) {
+        User userById = getUser(userID);
+        if (newUserData.getUsername()!=null){
+            if(userRepository.findByUsername(newUserData.getUsername())!=null){
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The provided username is already taken. Please choose another one.");
+            }
+            userById.setUsername(newUserData.getUsername());
+            userRepository.save(userById);
+        }
+        else if(newUserData.getPassword()!=null){
+            userById.setPassword(newUserData.getPassword());
+            userRepository.save(userById);
+        }
+        else if(newUserData.getMail()!=null){
+            userById.setMail(newUserData.getMail());
+            userRepository.save(userById);
+        }
+        else{
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nothing to modify");
         }
     }
 

@@ -3,10 +3,12 @@ package ch.uzh.ifi.hase.soprafs21.controller;
 import ch.uzh.ifi.hase.soprafs21.entity.User;
 import ch.uzh.ifi.hase.soprafs21.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs21.rest.dto.UserPostDTO;
+import ch.uzh.ifi.hase.soprafs21.rest.dto.UserPutDTO;
 import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs21.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +42,19 @@ public class UserController {
         return userGetDTOs;
     }
 
+    @GetMapping(value = "/users/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public UserGetDTO getUser(@PathVariable String userId) {
+
+        User user = userService.getUser(Long.parseLong(userId));
+
+        if(user==null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No such user exists");
+        }
+        return DTOMapper.INSTANCE.convertEntityToUserGetDTO(user);
+    }
+
     @PostMapping("/users")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
@@ -52,5 +67,24 @@ public class UserController {
 
         // convert internal representation of user back to API
         return DTOMapper.INSTANCE.convertEntityToUserGetDTO(createdUser);
+    }
+
+    //Logs in user by checking credentials and changing status to ONLINE
+    @PutMapping("/users")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public UserGetDTO loginUser(@RequestBody UserPutDTO userPutDTO) {
+        User userInput = DTOMapper.INSTANCE.convertUserPutDTOtoEntity(userPutDTO);
+        User LoggedInUser = userService.logInUser(userInput);
+        return DTOMapper.INSTANCE.convertEntityToUserGetDTO(LoggedInUser);
+    }
+
+    //Changes a specific user's Username/Password/Mail
+    @PutMapping(value = "/users/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseBody
+    public void changeUser(@RequestBody UserPutDTO userPutDTO, @PathVariable String userId) {
+        User userInput = DTOMapper.INSTANCE.convertUserPutDTOtoEntity(userPutDTO);
+        userService.modifyUser(userInput, Long.parseLong(userId));
     }
 }

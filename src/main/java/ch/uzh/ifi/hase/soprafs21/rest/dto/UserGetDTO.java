@@ -1,13 +1,22 @@
 package ch.uzh.ifi.hase.soprafs21.rest.dto;
 
 import ch.uzh.ifi.hase.soprafs21.constant.UserStatus;
+import ch.uzh.ifi.hase.soprafs21.entity.Portfolio;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 public class UserGetDTO {
 
     private Long id;
-    private String name;
     private String username;
     private UserStatus status;
+    private List<Portfolio> ownedPortfolios;
+    private Set<Portfolio> collaboratingPortfolios;
+    private Date creationDate;
+    private String token;
 
     public Long getId() {
         return id;
@@ -15,14 +24,6 @@ public class UserGetDTO {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getUsername() {
@@ -39,5 +40,37 @@ public class UserGetDTO {
 
     public void setStatus(UserStatus status) {
         this.status = status;
+    }
+
+    public List<Portfolio> getOwnedPortfolios() {
+        return ownedPortfolios;
+    }
+
+    public void setOwnedPortfolios(List<Portfolio> ownedPortfolios) {
+        this.ownedPortfolios = ownedPortfolios;
+    }
+
+    public Set<Portfolio> getCollaboratingPortfolios() {
+        return collaboratingPortfolios;
+    }
+
+    public void setCollaboratingPortfolios(Set<Portfolio> collaboratingPortfolios) {
+        this.collaboratingPortfolios = collaboratingPortfolios;
+    }
+
+    public Date getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(Date creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 }
