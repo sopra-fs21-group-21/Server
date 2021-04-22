@@ -3,6 +3,7 @@ package ch.uzh.ifi.hase.soprafs21.service;
 import ch.uzh.ifi.hase.soprafs21.constant.PortfolioVisibility;
 import ch.uzh.ifi.hase.soprafs21.entity.Portfolio;
 import ch.uzh.ifi.hase.soprafs21.entity.Position;
+import ch.uzh.ifi.hase.soprafs21.entity.User;
 import ch.uzh.ifi.hase.soprafs21.repository.PortfolioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -18,14 +19,16 @@ import java.util.*;
 
 public class PortfolioService {
     private final PortfolioRepository portfolioRepository;
-
     private final PositionService positionService;
+    private final UserService userService;
 
     @Autowired
     public PortfolioService(@Qualifier("portfolioRepository") PortfolioRepository portfolioRepository,
-                            PositionService positionService) {
+                            PositionService positionService,
+                            UserService userService) {
         this.portfolioRepository = portfolioRepository;
         this.positionService = positionService;
+        this.userService = userService;
     }
 
     public Portfolio findPortfolioById(Long id)
@@ -86,19 +89,29 @@ public class PortfolioService {
      * @param position position to open
      * @return the position as opened
      */
-    public Position openPosition(Long portfolioId, Position position)
+    public Portfolio openPosition(Long portfolioId, Position position)
     {
         Portfolio portfolio = findPortfolioById(portfolioId);
         // Create the position and store it
         position = positionService.openPosition(position);
 
-        // Add the position to the portfolio
+        // Check there is sufficient cash
+        if (portfolio.getBalance().compareTo(position.getTotalWorth()) == -1)
+        {
+            // Not enough cash buddy
+            throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "Can't afford that :(");
+        }
+        // Remove cash
+        portfolio.setBalance(
+                portfolio.getBalance().subtract(position.getTotalWorth())
+        );
+        // Add position to the portfolio
         List<Position> updatedPositions = portfolio.getPositions();
         updatedPositions.add(position);
         portfolio.setPositions(updatedPositions);
 
-        portfolioRepository.flush();
-        return position;
+        portfolio = portfolioRepository.save(portfolio);
+        return portfolio;
     }
 
     public void closePosition(Long portfolioId, Long positionId)
@@ -147,4 +160,16 @@ public class PortfolioService {
         return getCash(portfolioId).add(getCapital(portfolioId));
     }
 
+
+    // This will make sure that the user is authorized to execute operations on the portfolio
+    public void validateRequest(Portfolio portfolio, String token)
+    {
+        Portfolio targetPortfolio = portfolioRepository.getOne(portfolio.getId());
+        User actor = userService.getUserByToken(token);
+        if (targetPortfolio.getTraders().contains(actor))
+        {
+            return;
+        }
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You are not authorized to execute this operation");
+    }
 }

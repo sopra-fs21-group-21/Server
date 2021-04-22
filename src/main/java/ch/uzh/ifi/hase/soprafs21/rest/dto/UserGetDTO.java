@@ -2,19 +2,17 @@ package ch.uzh.ifi.hase.soprafs21.rest.dto;
 
 import ch.uzh.ifi.hase.soprafs21.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs21.entity.Portfolio;
+import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class UserGetDTO {
 
     private Long id;
     private String username;
     private UserStatus status;
-    private List<Portfolio> ownedPortfolios;
-    private Set<Portfolio> collaboratingPortfolios;
+    private List<PortfolioGetDTO> ownedPortfolios;
+    private Set<PortfolioGetDTO> collaboratingPortfolios;
     private Date creationDate;
     private String token;
 
@@ -42,20 +40,35 @@ public class UserGetDTO {
         this.status = status;
     }
 
-    public List<Portfolio> getOwnedPortfolios() {
+    public List<PortfolioGetDTO> getOwnedPortfolios() {
         return ownedPortfolios;
     }
 
     public void setOwnedPortfolios(List<Portfolio> ownedPortfolios) {
-        this.ownedPortfolios = ownedPortfolios;
+        List<PortfolioGetDTO> portfolioDTOs = new ArrayList<>();
+        for (Portfolio portfolio : ownedPortfolios)
+        {
+            portfolioDTOs.add(
+                    DTOMapper.INSTANCE.convertEntityToPortfolioGetDTO(portfolio)
+            );
+        }
+        this.ownedPortfolios = portfolioDTOs;
     }
 
-    public Set<Portfolio> getCollaboratingPortfolios() {
+    public Set<PortfolioGetDTO> getCollaboratingPortfolios() {
         return collaboratingPortfolios;
     }
 
     public void setCollaboratingPortfolios(Set<Portfolio> collaboratingPortfolios) {
-        this.collaboratingPortfolios = collaboratingPortfolios;
+        // need to convert the entities into DTOs to avoid fractal get mapping
+        Set<PortfolioGetDTO> portfolioDTOs = new HashSet<>();
+        for (Portfolio portfolio: collaboratingPortfolios)
+        {
+            portfolioDTOs.add(
+                    DTOMapper.INSTANCE.convertEntityToPortfolioGetDTO(portfolio)
+            );
+        }
+        this.collaboratingPortfolios = portfolioDTOs;
     }
 
     public Date getCreationDate() {

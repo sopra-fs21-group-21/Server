@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs21.service;
 
 import ch.uzh.ifi.hase.soprafs21.constant.UserStatus;
+import ch.uzh.ifi.hase.soprafs21.entity.Portfolio;
 import ch.uzh.ifi.hase.soprafs21.entity.User;
 import ch.uzh.ifi.hase.soprafs21.repository.UserRepository;
 import org.slf4j.Logger;
@@ -12,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.persistence.EntityNotFoundException;
+import javax.sound.sampled.Port;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -64,6 +67,16 @@ public class UserService {
 
         log.debug("Created Information for User: {}", newUser);
         return newUser;
+    }
+
+    public User getUserByToken(String token)
+    {
+        User user = userRepository.findByToken(token);
+        if (user != null)
+        {
+            return user;
+        }
+        throw new EntityNotFoundException("Invalid token");
     }
 
     /**
@@ -131,6 +144,17 @@ public class UserService {
         else{
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nothing to modify");
         }
+    }
+
+
+    // Needed when a new portfolio is created, to add it to the owned portfolios
+    public void addCreatedPortfolio(Portfolio portfolio)
+    {
+        User updateUser = userRepository.getOne(
+                portfolio.getOwner().getId()
+        );
+        updateUser.addOwnedPortfolio(portfolio);
+        userRepository.save(updateUser);
     }
 
 }

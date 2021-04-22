@@ -20,6 +20,7 @@ public class Portfolio implements Serializable {
 
     // This is a one to many relation hence the annotation
     @ManyToOne
+    @JoinColumn(name = "id")
     private User owner;
 
     // It is not nullable, because the owner is automatically also a trader

@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs21.rest.mapper;
 
 import ch.uzh.ifi.hase.soprafs21.entity.Portfolio;
+import ch.uzh.ifi.hase.soprafs21.entity.Position;
 import ch.uzh.ifi.hase.soprafs21.entity.User;
 import ch.uzh.ifi.hase.soprafs21.rest.dto.*;
 import org.mapstruct.*;
@@ -42,8 +43,13 @@ public interface DTOMapper {
 
     @Mapping(source = "id", target = "id")
     @Mapping(source = "portfolioName", target = "name")
+    @Mapping(source = "owner", target = "owner")
     @Mapping(source = "traders", target = "traders")
     @Mapping(source = "balance", target = "cash")
-
     PortfolioGetDTO convertEntityToPortfolioGetDTO(Portfolio portfolio);
+
+    @Mapping(source = "code", target = "code")
+    @Mapping(source = "amount", target = "amount")
+    @Mapping(source = "type", target = "type")
+    Position convertPositionPostDTOtoEntity(PositionPostDTO positionPostDTO);
 }

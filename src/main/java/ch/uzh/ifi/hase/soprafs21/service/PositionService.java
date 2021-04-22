@@ -53,6 +53,8 @@ public class PositionService {
     {
         validatePosition(newPosition);
         // BelongingPortfolio, price, code and amount are passed through the DTO mapper
+        newPosition.setPrice(
+                FinanceService.getStockPrice(newPosition.getCode(), "CHF"));
         newPosition.setOpeningTime(new Date());
         newPosition.setOpeningPrice(
                 newPosition.getPrice().multiply(newPosition.getAmount())

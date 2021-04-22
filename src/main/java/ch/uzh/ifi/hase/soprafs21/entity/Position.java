@@ -35,6 +35,7 @@ public class Position {
     private String currency;
 
     @ManyToOne
+    @JoinColumn(name = "portfolioId")
     private Portfolio belongingPortfolio;
 
     @Column(nullable = false)

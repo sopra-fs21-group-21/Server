@@ -1,14 +1,18 @@
 package ch.uzh.ifi.hase.soprafs21.rest.dto;
 
 import ch.uzh.ifi.hase.soprafs21.entity.User;
+import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class PortfolioGetDTO {
     Long id;
     String name;
-    List<UserGetDTO> traders;
+    SmallUserDTO owner;
+    List<SmallUserDTO> traders;
     BigDecimal cash;
     BigDecimal capital;
     BigDecimal totalValue;
@@ -29,12 +33,23 @@ public class PortfolioGetDTO {
         this.name = name;
     }
 
-    public List<UserGetDTO> getTraders() {
+    public List<SmallUserDTO> getTraders() {
         return traders;
     }
 
-    public void setTraders(List<UserGetDTO> traders) {
-        this.traders = traders;
+    public void setTraders(Set<User> traders) {
+        List<SmallUserDTO> traderNames = new ArrayList<>();
+        for (User trader : traders)
+        {
+            traderNames.add(
+                    new SmallUserDTO(
+                            trader.getId(),
+                            trader.getUsername(),
+                            trader.getStatus()
+                    )
+            );
+        }
+        this.traders = traderNames;
     }
 
     public BigDecimal getCash() {
@@ -60,4 +75,18 @@ public class PortfolioGetDTO {
     public void setTotalValue(BigDecimal totalValue) {
         this.totalValue = totalValue;
     }
+
+    public SmallUserDTO getOwner() {
+        return owner;
+    }
+
+    public void setOwner(User owner) {
+        this.owner = new SmallUserDTO(
+                owner.getId(),
+                owner.getUsername(),
+                owner.getStatus()
+        );
+    }
+
+
 }
