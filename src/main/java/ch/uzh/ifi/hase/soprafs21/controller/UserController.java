@@ -49,9 +49,6 @@ public class UserController {
 
         User user = userService.getUser(Long.parseLong(userId));
 
-        if(user==null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No such user exists");
-        }
         return DTOMapper.INSTANCE.convertEntityToUserGetDTO(user);
     }
 
@@ -83,7 +80,9 @@ public class UserController {
     @PutMapping(value = "/users/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ResponseBody
-    public void changeUser(@RequestBody UserPutDTO userPutDTO, @PathVariable String userId) {
+    public void changeUser(@RequestBody UserPutDTO userPutDTO,
+                           @PathVariable String userId,
+                           @RequestHeader(value = "token") String token) {
         User userInput = DTOMapper.INSTANCE.convertUserPutDTOtoEntity(userPutDTO);
         userService.modifyUser(userInput, Long.parseLong(userId));
     }
