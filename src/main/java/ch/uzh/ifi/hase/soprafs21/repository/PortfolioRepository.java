@@ -1,11 +1,13 @@
 package ch.uzh.ifi.hase.soprafs21.repository;
 
 import ch.uzh.ifi.hase.soprafs21.entity.Portfolio;
-import ch.uzh.ifi.hase.soprafs21.entity.Position;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository("portfolioRepository")
 public interface PortfolioRepository extends JpaRepository <Portfolio, Long> {
+    Optional<Portfolio> findPortfolioByPortfolioCode(String PortfolioCode);
     boolean existsByPortfolioName(String portfolioName);
 }

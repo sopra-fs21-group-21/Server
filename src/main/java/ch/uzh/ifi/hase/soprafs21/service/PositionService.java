@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.Date;
 import java.util.Optional;
 @Service
@@ -57,13 +58,12 @@ public class PositionService {
                 FinanceService.getStockPrice(newPosition.getCode(), "CHF"));
         newPosition.setOpeningTime(new Date());
         newPosition.setOpeningPrice(
-                newPosition.getPrice().multiply(newPosition.getAmount())
+                newPosition.getPrice()
         );
         newPosition.setTotalWorth(newPosition.getOpeningPrice());
         newPosition.setCurrency("CHF");
 
-        newPosition = positionRepository.save(newPosition);
-        positionRepository.flush();
+        newPosition = positionRepository.saveAndFlush(newPosition);
 
         return newPosition;
     }
@@ -85,16 +85,15 @@ public class PositionService {
                             case STOCK_SHORT:
                                 // (Opening price - current price) * amount
                                 yield position.getOpeningPrice()
-                                        .subtract(position.getPrice())
-                                        .multiply(position.getAmount());
+                                        .subtract(position.getPrice(), MathContext.DECIMAL32)
+                                        .multiply(position.getAmount(), MathContext.DECIMAL32);
                             default:
-                                yield position.getAmount().multiply(price);
+                                yield position.getAmount().multiply(price, MathContext.DECIMAL32);
                         }
 
         );
 
-        positionRepository.flush();
-
+        position = positionRepository.saveAndFlush(position);
         return position;
     }
 

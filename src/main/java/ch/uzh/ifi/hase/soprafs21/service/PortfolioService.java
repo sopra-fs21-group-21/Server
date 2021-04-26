@@ -10,9 +10,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-
 import javax.persistence.EntityNotFoundException;
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.*;
 
 @Service
@@ -39,6 +39,36 @@ public class PortfolioService {
             return portfolioOptional.get();
         }
         throw new EntityNotFoundException("No portfolio associated to the ID");
+    }
+
+    public Portfolio findPortfolioByCode(String code)
+    {
+        Optional<Portfolio> portfolioOptional = portfolioRepository.findPortfolioByPortfolioCode(code);
+        if (portfolioOptional.isPresent())
+        {
+            return portfolioOptional.get();
+        }
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The join code entered is incorrect.");
+    }
+
+    public Portfolio addTraderToPortfolio(String portfolioCode, String userToken)
+    {
+        Portfolio updatedPortfolio = findPortfolioByCode(portfolioCode);
+        User trader = userService.getUserByToken(userToken);
+
+        Set<User> traders = updatedPortfolio.getTraders();
+
+        // Check that the user we are about to add is not a trader yet
+        if (traders.contains(trader))
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You are already part of this portfolio!");
+        }
+
+        traders.add(trader);
+        updatedPortfolio.setTraders(traders);
+
+        updatedPortfolio = portfolioRepository.saveAndFlush(updatedPortfolio);
+        return updatedPortfolio;
     }
 
     public List<Portfolio> getSharedPortfolios()
@@ -103,7 +133,7 @@ public class PortfolioService {
         }
         // Remove cash
         portfolio.setBalance(
-                portfolio.getBalance().subtract(position.getTotalWorth())
+                portfolio.getBalance().subtract(position.getTotalWorth(), MathContext.DECIMAL32)
         );
         // Add position to the portfolio
         List<Position> updatedPositions = portfolio.getPositions();
@@ -114,7 +144,7 @@ public class PortfolioService {
         return portfolio;
     }
 
-    public void closePosition(Long portfolioId, Long positionId)
+    public Portfolio closePosition(Long portfolioId, Long positionId)
     {
         // Update the position and store the value
         Position position = positionService.updatePosition(positionId);
@@ -125,14 +155,20 @@ public class PortfolioService {
         {
             // Realize gain/losses
             portfolio.setBalance(
-                    portfolio.getBalance().add(position.getTotalWorth())
+                    portfolio.getBalance().add(position.getTotalWorth(), MathContext.DECIMAL32)
             );
             // Delete position from position repository
             positionService.closePosition(positionId);
-            portfolioRepository.flush();
+            // Update the portfolio in the repository (not sure it's necessary
+            // but they do it on Stack Overflow
+            portfolioRepository.saveAndFlush(portfolio);
+            return portfolio;
         }
-        // The position was not in the selected portfolio, nothing happens.
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No such open position in the portfolio.");
+        else
+        {
+            // The position was not in the selected portfolio, nothing happens.
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No such open position in the portfolio.");
+        }
     }
 
     public BigDecimal getCash(Long portfolioId)
@@ -149,7 +185,7 @@ public class PortfolioService {
         BigDecimal capital = BigDecimal.valueOf(0);
         for (Position position : positions)
         {
-            capital = capital.add(position.getTotalWorth());
+            capital = capital.add(position.getTotalWorth(), MathContext.DECIMAL32);
         }
         return capital;
     }

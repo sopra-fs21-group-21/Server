@@ -2,6 +2,7 @@ package ch.uzh.ifi.hase.soprafs21.service;
 
 import org.json.JSONObject;
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -111,13 +112,19 @@ public class FinanceService {
         {
             return price;
         }
-        BigDecimal exchange_rate;
+        BigDecimal exchangeRate;
+        /*
+         Need this temporary variable because reading a BigDecimal directly can
+         cause errors due to precision being set to 0.
+        */
+        double exchangeRateTemp;
         try {
             JSONObject body = new JSONObject(response.get().body());
-            exchange_rate = body
+            exchangeRateTemp = body
                     .getJSONObject("Realtime Currency Exchange Rate")
-                    .getBigDecimal("5. Exchange Rate");
-            return exchange_rate.multiply(price);
+                    .getDouble("5. Exchange Rate");
+            exchangeRate= new BigDecimal(exchangeRateTemp, MathContext.DECIMAL32);
+            return exchangeRate.multiply(price, MathContext.DECIMAL32);
         }
         catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();

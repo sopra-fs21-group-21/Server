@@ -12,8 +12,6 @@ import ch.uzh.ifi.hase.soprafs21.service.PortfolioService;
 import ch.uzh.ifi.hase.soprafs21.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
-import javax.sound.sampled.Port;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -57,16 +55,22 @@ public class PortfolioController {
         // This will update the user to include the new portfolio in its owned portfolios
         userService.addCreatedPortfolio(portfolio);
 
-        return DTOMapper.INSTANCE.convertEntityToPortfolioGetDTO(portfolio);
+        PortfolioGetDTO portfolioDTO = DTOMapper.INSTANCE.convertEntityToPortfolioGetDTO(portfolio);
+        portfolioDTO.setCapital(portfolioService.getCapital(portfolio.getId()));
+        portfolioDTO.setTotalValue(portfolioService.getTotalValue(portfolio.getId()));
+        portfolioDTO.setJoinCode(portfolio.getPortfolioCode());
+        return portfolioDTO;
     }
 
     @GetMapping("/portfolios")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<PortfolioGetDTO> getPortfolios()
+    public List<PortfolioGetDTO> getPortfolios(@RequestHeader(value = "token") String token)
     {
         List<Portfolio> portfolios = portfolioService.getSharedPortfolios();
         List<PortfolioGetDTO> portfolioGetDTOs = new ArrayList<>();
+
+        User user = userService.getUserByToken(token);
 
         PortfolioGetDTO currentDto;
         for (Portfolio portfolio : portfolios)
@@ -74,11 +78,85 @@ public class PortfolioController {
             currentDto = DTOMapper.INSTANCE.convertEntityToPortfolioGetDTO(portfolio);
             currentDto.setCapital(portfolioService.getCapital(portfolio.getId()));
             currentDto.setTotalValue(portfolioService.getTotalValue(portfolio.getId()));
+            if (portfolio.getTraders().contains(user))
+            {
+                currentDto.setJoinCode(portfolio.getPortfolioCode());
+            }
+
             portfolioGetDTOs.add(currentDto);
         }
         return portfolioGetDTOs;
     }
 
+
+    /**
+     * ADD A TRADER TO AN EXISTING PORTFOLIO
+     * the body will contain
+     * code: String, the join code of the portfolio
+     */
+    @PutMapping("portfolios/")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    @ResponseBody
+    public PortfolioGetDTO addTrader(@RequestHeader(value = "join_code") String code,
+                                     @RequestHeader(value = "token") String token
+    )
+    {
+        Portfolio portfolio;
+        // Add trader to portfolio
+        portfolio = portfolioService.addTraderToPortfolio(code, token);
+        // Add portfolio to trader
+        // Make sure you don't swap these statements as portfolioService will check that the user
+        // is not a trader in the portfolio yet, but userService will not.
+        userService.addPortfolioToUser(portfolio, token);
+        // we need to add capital and total value as they are not stored in the database
+        PortfolioGetDTO portfolioDTO = DTOMapper.INSTANCE.convertEntityToPortfolioGetDTO(portfolio);
+        portfolioDTO.setCapital(
+                portfolioService.getCapital(portfolio.getId())
+        );
+        portfolioDTO.setTotalValue(
+                portfolioService.getTotalValue(portfolio.getId())
+        );
+        return portfolioDTO;
+    }
+
+    /**
+     * GET INFORMATION FOR A SPECIFIC PORTFOLIO
+     * If the request is made by a trader in the portfolio join code will be included,
+     * otherwise it won't.
+     */
+    @GetMapping("portfolios/{portfolioId}")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public PortfolioGetDTO getPortfolio(@PathVariable Long portfolioId,
+                                        @RequestHeader(value = "token") String token
+    )
+    {
+        User user = userService.getUserByToken(token);
+        Portfolio portfolio = portfolioService.findPortfolioById(portfolioId);
+        PortfolioGetDTO portfolioDTO = DTOMapper.INSTANCE.convertEntityToPortfolioGetDTO(portfolio);
+        portfolioDTO.setCapital(portfolioService.getCapital(portfolio.getId()));
+        portfolioDTO.setTotalValue(portfolioService.getTotalValue(portfolio.getId()));
+        // If the user is a trader in the portfolio the joinCode is returned, otherwise it is not
+        if (portfolio.getTraders().contains(user))
+        {
+            portfolioDTO.setJoinCode(portfolioDTO.getJoinCode());
+        }
+        return portfolioDTO;
+    }
+
+
+    /**
+     * OPEN A POSITION IN A GIVEN PORTFOLIO
+     * Returns the updated portfolioGetDTO
+     *
+     * The header will contain the token.
+     *
+     * The body will have:
+     * code: String, code of the stock
+     * amount: integer, how many stocks
+     * type: String, position type, see the enumerated type
+     *
+     */
     @PostMapping("/portfolios/{portfolioId}")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
@@ -102,5 +180,35 @@ public class PortfolioController {
         );
         return portfolioDTO;
     }
+
+    /**
+     * CLOSE A POSITION IN A PORTFOLIO
+     * Returns the updated portfolioGetDTO
+     */
+    @DeleteMapping("/portfolios/{portfolioId}/{positionId}")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public PortfolioGetDTO closePosition(@PathVariable Long portfolioId,
+                                         @PathVariable Long positionId,
+                                         @RequestHeader(value = "token") String token
+    )
+    {
+        Portfolio portfolio = portfolioService.findPortfolioById(portfolioId);
+        portfolioService.validateRequest(portfolio, token);
+
+        portfolio = portfolioService.closePosition(portfolioId, positionId);
+
+        // we need to add capital and total value as they are not stored in the database
+        PortfolioGetDTO portfolioDTO = DTOMapper.INSTANCE.convertEntityToPortfolioGetDTO(portfolio);
+        portfolioDTO.setCapital(
+                portfolioService.getCapital(portfolioId)
+        );
+        portfolioDTO.setTotalValue(
+                portfolioService.getTotalValue(portfolioId)
+        );
+        return portfolioDTO;
+    }
+
+
 
 }

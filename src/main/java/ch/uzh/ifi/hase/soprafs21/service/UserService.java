@@ -14,11 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.persistence.EntityNotFoundException;
-import javax.sound.sampled.Port;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * User Service
@@ -155,6 +151,16 @@ public class UserService {
         );
         updateUser.addOwnedPortfolio(portfolio);
         userRepository.save(updateUser);
+    }
+
+    public void addPortfolioToUser(Portfolio portfolio, String token)
+    {
+        User user = getUserByToken(token);
+        Set<Portfolio> joinedPortfolios = user.getCollaboratingPortfolios();
+
+        joinedPortfolios.add(portfolio);
+
+        userRepository.saveAndFlush(user);
     }
 
 }

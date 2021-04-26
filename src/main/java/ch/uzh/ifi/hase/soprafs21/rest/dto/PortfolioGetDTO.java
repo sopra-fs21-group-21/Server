@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs21.rest.dto;
 
+import ch.uzh.ifi.hase.soprafs21.entity.Position;
 import ch.uzh.ifi.hase.soprafs21.entity.User;
 import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
 
@@ -16,6 +17,36 @@ public class PortfolioGetDTO {
     BigDecimal cash;
     BigDecimal capital;
     BigDecimal totalValue;
+
+public String getJoinCode() {
+        return joinCode;
+    }
+
+    public void setJoinCode(String joinCode) {
+        this.joinCode = joinCode;
+    }
+
+    String joinCode;
+
+    public List<PositionGetDTO> getPositions() {
+        return positions;
+    }
+
+    // Takes the positions in the original portfolio and stores them in a list of DTOs
+    public void setPositions(List<Position> positions) {
+        List<PositionGetDTO> positionDTOs = new ArrayList<>();
+        PositionGetDTO currentDTO;
+        for (Position position : positions)
+        {
+            currentDTO = DTOMapper.INSTANCE.convertEntityToPositionGetDTO(position);
+            // Performance is computed on the fly
+            currentDTO.setPerformance();
+            positionDTOs.add(currentDTO);
+        }
+        this.positions = positionDTOs;
+    }
+
+    List<PositionGetDTO> positions;
 
     public Long getId() {
         return id;

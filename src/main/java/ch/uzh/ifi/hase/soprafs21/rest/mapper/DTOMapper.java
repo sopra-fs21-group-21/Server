@@ -47,10 +47,20 @@ public interface DTOMapper {
     @Mapping(source = "owner", target = "owner")
     @Mapping(source = "traders", target = "traders")
     @Mapping(source = "balance", target = "cash")
+    @Mapping(source = "positions", target = "positions")
     PortfolioGetDTO convertEntityToPortfolioGetDTO(Portfolio portfolio);
 
     @Mapping(source = "code", target = "code")
     @Mapping(source = "amount", target = "amount")
     @Mapping(source = "type", target = "type")
     Position convertPositionPostDTOtoEntity(PositionPostDTO positionPostDTO);
+
+    @Mapping(source = "id", target = "id")
+    @Mapping(source = "code", target = "code")
+    @Mapping(source = "price", target = "price")
+    @Mapping(source = "openingPrice", target = "openingPrice")
+    @Mapping(source = "amount", target = "amount")
+    @Mapping(source = "type", target = "type")
+    @Mapping(source = "totalWorth", target = "value")
+    PositionGetDTO convertEntityToPositionGetDTO(Position position);
 }
