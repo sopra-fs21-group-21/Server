@@ -36,6 +36,7 @@ public interface DTOMapper {
     @Mapping(source = "ownedPortfolios", target = "ownedPortfolios")
     @Mapping(source = "collaboratingPortfolios", target = "collaboratingPortfolios")
     @Mapping(source = "creationDate", target = "creationDate")
+    @Mapping(source = "mail", target = "mail")
     UserGetDTO convertEntityToUserGetDTO(User user);
 
     @Mapping(source = "name", target = "portfolioName")

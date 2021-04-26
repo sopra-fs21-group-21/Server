@@ -15,6 +15,8 @@ public class UserGetDTO {
     private Set<PortfolioGetDTO> collaboratingPortfolios;
     private Date creationDate;
     private String token;
+    private String mail;
+
 
     public Long getId() {
         return id;
@@ -85,5 +87,13 @@ public class UserGetDTO {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public String getMail() {
+        return mail;
+    }
+
+    public void setMail(String mail) {
+        this.mail = mail;
     }
 }
