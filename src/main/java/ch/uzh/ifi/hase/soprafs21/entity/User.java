@@ -3,6 +3,7 @@ package ch.uzh.ifi.hase.soprafs21.entity;
 import ch.uzh.ifi.hase.soprafs21.constant.UserStatus;
 
 import javax.persistence.*;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.*;
 
@@ -17,6 +18,7 @@ import java.util.*;
 @Table(name="\"user\"")
 public class User implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @Id
@@ -43,7 +45,7 @@ public class User implements Serializable {
 
     // This is a one to many relation hence the annotation
     @OneToMany (mappedBy = "owner")
-    private List<Portfolio> ownedPortfolios = new ArrayList<Portfolio>();
+    private List<Portfolio> ownedPortfolios = new ArrayList<>();
 
     // This is a many to many relation hence the annotation. In the JPA tutorial it says to use sets with many to many.
     @ManyToMany
