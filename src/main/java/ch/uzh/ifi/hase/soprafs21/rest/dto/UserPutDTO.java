@@ -5,6 +5,8 @@ public class UserPutDTO {
 
     private String password;
 
+    private String mail;
+
     public String getUsername() {
         return username;
     }
@@ -12,6 +14,15 @@ public class UserPutDTO {
     public void setUsername(String username) {
         this.username = username;
     }
+
+    public String getMail() {
+        return mail;
+    }
+
+    public void setMail(String mail) {
+        this.mail = mail;
+    }
+
 
     public String getPassword() {
         return password;
