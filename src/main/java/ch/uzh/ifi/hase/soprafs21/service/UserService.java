@@ -120,8 +120,9 @@ public class UserService {
     }
 
     //Changes Username/Password/Mail of a user using an id and a user object with the proposed changes
-    public void modifyUser(User newUserData, Long userID) {
+    public void modifyUser(User newUserData, Long userID, String token) {
         User userById = getUser(userID);
+        verifyUser(userById, token);
         if (newUserData.getUsername()!=null){
             if(userRepository.findByUsername(newUserData.getUsername())!=null){
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The provided username is already taken. Please choose another one.");
@@ -140,6 +141,18 @@ public class UserService {
         else{
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nothing to modify");
         }
+    }
+
+    private void verifyUser(User userToVerify, String token){
+        if (!userToVerify.getToken().equals(token)){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You are not authorized to execute this operation");
+        }
+    }
+
+    public void logoutUser(String token){
+        User userByToken = getUserByToken(token);
+        userByToken.setStatus(UserStatus.OFFLINE);
+        userRepository.save(userByToken);
     }
 
 

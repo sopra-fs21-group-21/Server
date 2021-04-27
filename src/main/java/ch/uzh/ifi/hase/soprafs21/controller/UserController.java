@@ -8,7 +8,6 @@ import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs21.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,6 +75,13 @@ public class UserController {
         return DTOMapper.INSTANCE.convertEntityToUserGetDTO(LoggedInUser);
     }
 
+    @PutMapping("/users/logout")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public void logoutUser(@RequestHeader(value = "token") String token) {
+        userService.logoutUser(token);
+    }
+
     //Changes a specific user's Username/Password/Mail
     @PutMapping(value = "/users/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -84,6 +90,6 @@ public class UserController {
                            @PathVariable String userId,
                            @RequestHeader(value = "token") String token) {
         User userInput = DTOMapper.INSTANCE.convertUserPutDTOtoEntity(userPutDTO);
-        userService.modifyUser(userInput, Long.parseLong(userId));
+        userService.modifyUser(userInput, Long.parseLong(userId), token);
     }
 }
