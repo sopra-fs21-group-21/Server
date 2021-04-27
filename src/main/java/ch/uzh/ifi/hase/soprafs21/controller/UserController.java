@@ -81,8 +81,8 @@ public class UserController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ResponseBody
     public void changeUser(@RequestBody UserPutDTO userPutDTO,
-                           @PathVariable String userId,
-                           @RequestHeader(value = "token") String token) {
+                           @PathVariable String userId
+                           ) {
         User userInput = DTOMapper.INSTANCE.convertUserPutDTOtoEntity(userPutDTO);
         userService.modifyUser(userInput, Long.parseLong(userId));
     }
