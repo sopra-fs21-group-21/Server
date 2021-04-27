@@ -14,7 +14,7 @@ public class PositionGetDTO {
     BigDecimal openingPrice;
     BigDecimal amount;
     BigDecimal value;
-    BigDecimal performance;
+    BigDecimal totalPerformance;
 
     public Date getOpeningTime() {
         return openingTime;
@@ -74,12 +74,13 @@ public class PositionGetDTO {
         this.value = value;
     }
 
-    public BigDecimal getPerformance() {
-        return performance;
+    public BigDecimal getTotalPerformance() {
+        return totalPerformance;
     }
 
-    public void setPerformance() {
-        this.performance = this.price.divide(this.openingPrice, MathContext.DECIMAL32);
+    public void setTotalPerformance() {
+        this.totalPerformance = this.price.divide(this.openingPrice, MathContext.DECIMAL32)
+            .subtract(BigDecimal.valueOf(1));
     }
 
     public PositionType getType() {

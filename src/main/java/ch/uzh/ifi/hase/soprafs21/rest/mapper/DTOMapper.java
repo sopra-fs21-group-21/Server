@@ -62,6 +62,6 @@ public interface DTOMapper {
     @Mapping(source = "openingPrice", target = "openingPrice")
     @Mapping(source = "amount", target = "amount")
     @Mapping(source = "type", target = "type")
-    @Mapping(source = "totalWorth", target = "value")
+    @Mapping(source = "value", target = "value")
     PositionGetDTO convertEntityToPositionGetDTO(Position position);
 }

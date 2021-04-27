@@ -82,7 +82,7 @@ public class PositionServiceTest {
         positionService.updatePosition(Mockito.any());
 
         assertEquals(updatedPrice, testPosition.getPrice());
-        assertEquals(updatedTotalWorth, testPosition.getTotalWorth());
+        assertEquals(updatedTotalWorth, testPosition.getValue());
     }
 
 

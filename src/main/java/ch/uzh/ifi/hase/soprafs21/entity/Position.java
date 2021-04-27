@@ -34,12 +34,8 @@ public class Position {
     @Column
     private String currency;
 
-    @ManyToOne
-    @JoinColumn(name = "portfolioId")
-    private Portfolio belongingPortfolio;
-
     @Column(nullable = false)
-    private BigDecimal totalWorth;
+    private BigDecimal value;
 
     @Column (nullable = false)
     private BigDecimal openingPrice;
@@ -87,20 +83,12 @@ public class Position {
         this.currency = currency;
     }
 
-    public Portfolio getBelongingPortfolio() {
-        return belongingPortfolio;
+    public BigDecimal getValue() {
+        return value;
     }
 
-    public void setBelongingPortfolio(Portfolio belongingPortfolio) {
-        this.belongingPortfolio = belongingPortfolio;
-    }
-
-    public BigDecimal getTotalWorth() {
-        return totalWorth;
-    }
-
-    public void setTotalWorth(BigDecimal totalWorth) {
-        this.totalWorth = totalWorth;
+    public void setValue(BigDecimal totalWorth) {
+        this.value = totalWorth;
     }
 
     public BigDecimal getOpeningPrice() {

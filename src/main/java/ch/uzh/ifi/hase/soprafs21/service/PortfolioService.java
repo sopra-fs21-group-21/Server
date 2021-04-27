@@ -5,6 +5,8 @@ import ch.uzh.ifi.hase.soprafs21.entity.Portfolio;
 import ch.uzh.ifi.hase.soprafs21.entity.Position;
 import ch.uzh.ifi.hase.soprafs21.entity.User;
 import ch.uzh.ifi.hase.soprafs21.repository.PortfolioRepository;
+import ch.uzh.ifi.hase.soprafs21.rest.dto.PortfolioGetDTO;
+import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -14,6 +16,7 @@ import javax.persistence.EntityNotFoundException;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Service
 
@@ -106,7 +109,12 @@ public class PortfolioService {
         newPortfolio.setCreationDate(new Date());
         newPortfolio.setPortfolioCode(UUID.randomUUID().toString());
         newPortfolio.setBalance(BigDecimal.valueOf(startingBalance));
+        BigDecimal totalValue = BigDecimal.valueOf(startingBalance);
 
+        List<BigDecimal> valueTimeSeries = new ArrayList<>();
+        valueTimeSeries.add(0, totalValue);
+        newPortfolio.setTotalValue(valueTimeSeries);
+        newPortfolio.setLastUpdate(new Date());
 
         newPortfolio = portfolioRepository.saveAndFlush(newPortfolio);
 
@@ -126,14 +134,14 @@ public class PortfolioService {
         position = positionService.openPosition(position);
 
         // Check there is sufficient cash
-        if (portfolio.getBalance().compareTo(position.getTotalWorth()) == -1)
+        if (portfolio.getBalance().compareTo(position.getValue()) == -1)
         {
             // Not enough cash buddy
             throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "Can't afford that :(");
         }
         // Remove cash
         portfolio.setBalance(
-                portfolio.getBalance().subtract(position.getTotalWorth(), MathContext.DECIMAL32)
+                portfolio.getBalance().subtract(position.getValue(), MathContext.DECIMAL32)
         );
         // Add position to the portfolio
         List<Position> updatedPositions = portfolio.getPositions();
@@ -155,7 +163,7 @@ public class PortfolioService {
         {
             // Realize gain/losses
             portfolio.setBalance(
-                    portfolio.getBalance().add(position.getTotalWorth(), MathContext.DECIMAL32)
+                    portfolio.getBalance().add(position.getValue(), MathContext.DECIMAL32)
             );
             // Delete position from position repository
             positionService.closePosition(positionId);
@@ -185,13 +193,13 @@ public class PortfolioService {
         BigDecimal capital = BigDecimal.valueOf(0);
         for (Position position : positions)
         {
-            capital = capital.add(position.getTotalWorth(), MathContext.DECIMAL32);
+            capital = capital.add(position.getValue(), MathContext.DECIMAL32);
         }
         return capital;
     }
 
     // Sum of cash and capital
-    public BigDecimal getTotalValue(Long portfolioId)
+    public BigDecimal computeTotalValue(Long portfolioId)
     {
         return getCash(portfolioId).add(getCapital(portfolioId));
     }
@@ -207,5 +215,66 @@ public class PortfolioService {
             return;
         }
         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You are not authorized to execute this operation");
+    }
+
+    // Update the portfolio, if 24 hours have passed from the last update, push the updated value to the time series
+    // Operates under the assumption that portfolios will be refreshed at least once a day
+    public Portfolio updatePortfolio(Portfolio portfolio)
+    {
+        Portfolio updatedPortfolio = findPortfolioById(portfolio.getId());
+        // Update the positions
+        for (Position position : portfolio.getPositions())
+        {
+            positionService.updatePosition(position.getId());
+        }
+        // If 24 hours have passed since the last update update time series
+        Date currentDate = new Date();
+        Date lastUpdate = portfolio.getLastUpdate();
+        long hoursSinceLastUpdate = TimeUnit.HOURS.convert(
+                currentDate.getTime() - lastUpdate.getTime(), TimeUnit.MILLISECONDS);
+        BigDecimal updatedValue = computeTotalValue(portfolio.getId());
+        if (hoursSinceLastUpdate >= 24)
+        {
+            // Set this time as the time of the last update
+            updatedPortfolio.setLastUpdate(currentDate);
+            List<BigDecimal> valueTimeSeries = updatedPortfolio.getTotalValue();
+            valueTimeSeries.add(0, updatedValue);
+        }
+        return portfolioRepository.saveAndFlush(updatedPortfolio);
+    }
+
+    public BigDecimal getWeeklyPerformance(Portfolio portfolio)
+    {
+        List<BigDecimal> valueTimeSeries = portfolio.getTotalValue();
+        if (valueTimeSeries.size() >= 7)
+        {
+            // Value today divided by value last week
+            return valueTimeSeries.get(0)
+                    .divide(valueTimeSeries.get(6), MathContext.DECIMAL32)
+                    .subtract(BigDecimal.valueOf(1));
+        }
+        else
+        {
+            return getTotalPerformance(portfolio);
+        }
+    }
+
+    public BigDecimal getTotalPerformance(Portfolio portfolio)
+    {
+        List<BigDecimal> valueTimeSeries = portfolio.getTotalValue();
+        // Performance over the last element
+        return valueTimeSeries.get(valueTimeSeries.size() - 1)
+                .divide(valueTimeSeries.get(0), MathContext.DECIMAL32)
+                .subtract(BigDecimal.valueOf(1));
+    }
+
+    public PortfolioGetDTO makeGetDTO(Portfolio portfolio)
+    {
+        PortfolioGetDTO portfolioDTO = DTOMapper.INSTANCE.convertEntityToPortfolioGetDTO(portfolio);
+        portfolioDTO.setTotalPerformance(getTotalPerformance(portfolio));
+        portfolioDTO.setWeeklyPerformance(getWeeklyPerformance(portfolio));
+        portfolioDTO.setTotValue(computeTotalValue(portfolio.getId()));
+        portfolioDTO.setCapital(getCapital(portfolio.getId()));
+        return portfolioDTO;
     }
 }

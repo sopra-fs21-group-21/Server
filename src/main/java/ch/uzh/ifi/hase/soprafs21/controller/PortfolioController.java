@@ -55,9 +55,7 @@ public class PortfolioController {
         // This will update the user to include the new portfolio in its owned portfolios
         userService.addCreatedPortfolio(portfolio);
 
-        PortfolioGetDTO portfolioDTO = DTOMapper.INSTANCE.convertEntityToPortfolioGetDTO(portfolio);
-        portfolioDTO.setCapital(portfolioService.getCapital(portfolio.getId()));
-        portfolioDTO.setTotalValue(portfolioService.getTotalValue(portfolio.getId()));
+        PortfolioGetDTO portfolioDTO = portfolioService.makeGetDTO(portfolio);
         portfolioDTO.setJoinCode(portfolio.getPortfolioCode());
         return portfolioDTO;
     }
@@ -75,9 +73,7 @@ public class PortfolioController {
         PortfolioGetDTO currentDto;
         for (Portfolio portfolio : portfolios)
         {
-            currentDto = DTOMapper.INSTANCE.convertEntityToPortfolioGetDTO(portfolio);
-            currentDto.setCapital(portfolioService.getCapital(portfolio.getId()));
-            currentDto.setTotalValue(portfolioService.getTotalValue(portfolio.getId()));
+            currentDto = portfolioService.makeGetDTO(portfolio);
             if (portfolio.getTraders().contains(user))
             {
                 currentDto.setJoinCode(portfolio.getPortfolioCode());
@@ -108,14 +104,8 @@ public class PortfolioController {
         // Make sure you don't swap these statements as portfolioService will check that the user
         // is not a trader in the portfolio yet, but userService will not.
         userService.addPortfolioToUser(portfolio, token);
-        // we need to add capital and total value as they are not stored in the database
-        PortfolioGetDTO portfolioDTO = DTOMapper.INSTANCE.convertEntityToPortfolioGetDTO(portfolio);
-        portfolioDTO.setCapital(
-                portfolioService.getCapital(portfolio.getId())
-        );
-        portfolioDTO.setTotalValue(
-                portfolioService.getTotalValue(portfolio.getId())
-        );
+
+        PortfolioGetDTO portfolioDTO = portfolioService.makeGetDTO(portfolio);
         return portfolioDTO;
     }
 
@@ -133,9 +123,7 @@ public class PortfolioController {
     {
         User user = userService.getUserByToken(token);
         Portfolio portfolio = portfolioService.findPortfolioById(portfolioId);
-        PortfolioGetDTO portfolioDTO = DTOMapper.INSTANCE.convertEntityToPortfolioGetDTO(portfolio);
-        portfolioDTO.setCapital(portfolioService.getCapital(portfolio.getId()));
-        portfolioDTO.setTotalValue(portfolioService.getTotalValue(portfolio.getId()));
+        PortfolioGetDTO portfolioDTO = portfolioService.makeGetDTO(portfolio);
         // If the user is a trader in the portfolio the joinCode is returned, otherwise it is not
         if (portfolio.getTraders().contains(user))
         {
@@ -171,14 +159,7 @@ public class PortfolioController {
         portfolio = portfolioService.openPosition(portfolioId, position);
 
         // we need to add capital and total value as they are not stored in the database
-        PortfolioGetDTO portfolioDTO = DTOMapper.INSTANCE.convertEntityToPortfolioGetDTO(portfolio);
-        portfolioDTO.setCapital(
-                portfolioService.getCapital(portfolioId)
-        );
-        portfolioDTO.setTotalValue(
-                portfolioService.getTotalValue(portfolioId)
-        );
-        return portfolioDTO;
+        return portfolioService.makeGetDTO(portfolio);
     }
 
     /**
@@ -199,14 +180,7 @@ public class PortfolioController {
         portfolio = portfolioService.closePosition(portfolioId, positionId);
 
         // we need to add capital and total value as they are not stored in the database
-        PortfolioGetDTO portfolioDTO = DTOMapper.INSTANCE.convertEntityToPortfolioGetDTO(portfolio);
-        portfolioDTO.setCapital(
-                portfolioService.getCapital(portfolioId)
-        );
-        portfolioDTO.setTotalValue(
-                portfolioService.getTotalValue(portfolioId)
-        );
-        return portfolioDTO;
+        return portfolioService.makeGetDTO(portfolio);
     }
 
 

@@ -46,6 +46,14 @@ public class Portfolio implements Serializable {
     @Column(nullable = false)
     private Date creationDate;
 
+    // Contains the time series of the total value of the portfolio.
+    // At index 0 you have the latest update, at index i you have the total value i days ago.
+    @ElementCollection
+    private List<BigDecimal> totalValue = new ArrayList<>();
+
+    @Column
+    private Date lastUpdate;
+
     @OneToMany
     public List<Position> positions = new ArrayList<Position>();
 
@@ -121,5 +129,21 @@ public class Portfolio implements Serializable {
 
     public void setPositions(List<Position> positions) {
         this.positions = positions;
+    }
+
+    public List<BigDecimal> getTotalValue() {
+        return totalValue;
+    }
+
+    public void setTotalValue(List<BigDecimal> totalValue) {
+        this.totalValue = totalValue;
+    }
+
+    public Date getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public void setLastUpdate(Date lastUpdate) {
+        this.lastUpdate = lastUpdate;
     }
 }

@@ -16,7 +16,9 @@ public class PortfolioGetDTO {
     List<SmallUserDTO> traders;
     BigDecimal cash;
     BigDecimal capital;
-    BigDecimal totalValue;
+    BigDecimal totValue;
+    BigDecimal weeklyPerformance;
+    BigDecimal totalPerformance;
 
 public String getJoinCode() {
         return joinCode;
@@ -40,7 +42,7 @@ public String getJoinCode() {
         {
             currentDTO = DTOMapper.INSTANCE.convertEntityToPositionGetDTO(position);
             // Performance is computed on the fly
-            currentDTO.setPerformance();
+            currentDTO.setTotalPerformance();
             positionDTOs.add(currentDTO);
         }
         this.positions = positionDTOs;
@@ -99,12 +101,12 @@ public String getJoinCode() {
         this.capital = capital;
     }
 
-    public BigDecimal getTotalValue() {
-        return totalValue;
+    public BigDecimal getTotValue() {
+        return totValue;
     }
 
-    public void setTotalValue(BigDecimal totalValue) {
-        this.totalValue = totalValue;
+    public void setTotValue(BigDecimal totValue) {
+        this.totValue = totValue;
     }
 
     public SmallUserDTO getOwner() {
@@ -119,5 +121,19 @@ public String getJoinCode() {
         );
     }
 
+    public BigDecimal getWeeklyPerformance() {
+        return weeklyPerformance;
+    }
 
+    public void setWeeklyPerformance(BigDecimal weeklyPerformance) {
+        this.weeklyPerformance = weeklyPerformance;
+    }
+
+    public BigDecimal getTotalPerformance() {
+        return totalPerformance;
+    }
+
+    public void setTotalPerformance(BigDecimal totalPerformance) {
+        this.totalPerformance = totalPerformance;
+    }
 }
