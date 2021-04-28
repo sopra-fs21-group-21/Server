@@ -126,8 +126,8 @@ public class PortfolioController {
         PortfolioGetDTO portfolioDTO = portfolioService.makeGetDTO(portfolio);
         // If the user is a trader in the portfolio the joinCode is returned, otherwise it is not
         if (portfolio.getTraders().contains(user))
-        {
-            portfolioDTO.setJoinCode(portfolioDTO.getJoinCode());
+         {
+            portfolioDTO.setJoinCode(portfolio.getPortfolioCode());
         }
         return portfolioDTO;
     }
