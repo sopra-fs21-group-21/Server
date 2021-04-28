@@ -110,7 +110,7 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.collaboratingPortfolios").isArray())
                 .andExpect(jsonPath("$.collaboratingPortfolios", hasSize(0)))
                 .andExpect(jsonPath("$.creationDate", is("1970-01-01T00:00:00.001+00:00")))
-                .andExpect(jsonPath("$.token", is(testUser.getToken())));;
+                .andExpect(jsonPath("$.token", is(testUser.getToken())));
     }
 
     // GET user Error. No such user
@@ -185,7 +185,7 @@ public class UserControllerTest {
         // then
         mockMvc.perform(postRequest)
                 .andExpect(status().isConflict())
-                .andExpect(result -> assertEquals("409 CONFLICT \"The username provided is not unique. Therefore, the user could not be created!\"", result.getResolvedException().getMessage()));;
+                .andExpect(result -> assertEquals("409 CONFLICT \"The username provided is not unique. Therefore, the user could not be created!\"", result.getResolvedException().getMessage()));
     }
 
     // Put tests
@@ -210,7 +210,7 @@ public class UserControllerTest {
         userPutDTO.setUsername("newTestUsername");
 
         ResponseStatusException exe = new ResponseStatusException(HttpStatus.NOT_FOUND, "No such user exists");
-        doThrow(exe).when(userService).modifyUser(Mockito.any(), Mockito.any());
+        doThrow(exe).when(userService).modifyUser(Mockito.any(), Mockito.any(), Mockito.any());
 
         mockMvc.perform(MockMvcRequestBuilders.put(url)
                 .contentType(MediaType.APPLICATION_JSON_VALUE).content(asJsonString(userPutDTO))).andExpect(status().isNotFound())
@@ -239,7 +239,7 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.collaboratingPortfolios").isArray())
                 .andExpect(jsonPath("$.collaboratingPortfolios", hasSize(0)))
                 .andExpect(jsonPath("$.creationDate", is("1970-01-01T00:00:00.001+00:00")))
-                .andExpect(jsonPath("$.token", is(testUser.getToken())));;
+                .andExpect(jsonPath("$.token", is(testUser.getToken())));
     }
 
 

@@ -150,7 +150,7 @@ public class UserServiceTest {
     @Test
     public void modifyUser_validInputUsername_success() {
         // given -> a user has already been created
-        userService.createUser(testUser);
+        User userToModify = userService.createUser(testUser);
 
         // when -> setup additional mocks for UserRepository
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(testUser));
@@ -158,7 +158,7 @@ public class UserServiceTest {
         User newUsernameUser = new User();
         newUsernameUser.setUsername("newTestUsername");
 
-        userService.modifyUser(newUsernameUser, 1L);
+        userService.modifyUser(newUsernameUser, 1L, userToModify.getToken());
 
         // then -> attempt to change username to new username -> check that the username has been changed
         assertEquals(newUsernameUser.getUsername(), testUser.getUsername());
@@ -167,7 +167,7 @@ public class UserServiceTest {
     @Test
     public void modifyUser_validInputPassword_success() {
         // given -> a user has already been created
-        userService.createUser(testUser);
+        User userToModify = userService.createUser(testUser);
 
         // when -> setup additional mocks for UserRepository
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(testUser));
@@ -175,7 +175,7 @@ public class UserServiceTest {
         User newPasswordUser = new User();
         newPasswordUser.setPassword("newTestPassword");
 
-        userService.modifyUser(newPasswordUser, 1L);
+        userService.modifyUser(newPasswordUser, 1L, userToModify.getToken());
 
         // then -> attempt to change password to new password -> check that the password has been changed
         assertEquals(newPasswordUser.getPassword(), testUser.getPassword());
@@ -184,7 +184,7 @@ public class UserServiceTest {
     @Test
     public void modifyUser_validInputMail_success() {
         // given -> a first has already been created
-        userService.createUser(testUser);
+        User userToModify = userService.createUser(testUser);
 
         // when -> setup additional mocks for UserRepository
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(testUser));
@@ -192,7 +192,7 @@ public class UserServiceTest {
         User newMailUser = new User();
         newMailUser.setMail("newTestMail");
 
-        userService.modifyUser(newMailUser, 1L);
+        userService.modifyUser(newMailUser, 1L, userToModify.getToken());
 
         // then -> attempt to change mail to new mail -> check that the mail has been changed
         assertEquals(newMailUser.getMail(), testUser.getMail());
@@ -201,7 +201,7 @@ public class UserServiceTest {
     @Test
     public void modifyUser_nullUser_throwsException() {
         // given -> a user has already been created
-        userService.createUser(testUser);
+        User userToModify = userService.createUser(testUser);
 
         // when -> setup additional mocks for UserRepository
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(testUser));
@@ -209,6 +209,6 @@ public class UserServiceTest {
         User newEmptyUser = new User();
 
         // then -> attempt to change user using an empty user object -> check that an error is thrown
-        assertThrows(ResponseStatusException.class, () -> userService.modifyUser(newEmptyUser, 1L));
+        assertThrows(ResponseStatusException.class, () -> userService.modifyUser(newEmptyUser, 1L, userToModify.getToken()));
     }
 }
