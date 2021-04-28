@@ -5,13 +5,16 @@ import ch.uzh.ifi.hase.soprafs21.repository.PositionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
+
 @Service
 
 public class PositionService {
@@ -105,4 +108,24 @@ public class PositionService {
         positionRepository.deleteById(id);
     }
 
+    @Scheduled(fixedDelay = 1000)
+    // Updates all positions, one per second
+    // This would be more useful if financial data was *actually* updated in real time.
+    // Currency exchange rates are though so it is still kind of useful.
+    private void autoUpdatePositions()
+    {
+        List<Position> positions = positionRepository.findAll();
+        for (Position position : positions)
+        {
+            updatePosition(position.getId());
+            // Wait a second, this way we never exceed 60 requests per minute
+            // and we are well within our limit
+            try {
+                Thread.sleep(1000);
+            }
+            catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }
