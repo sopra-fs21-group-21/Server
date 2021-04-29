@@ -172,6 +172,7 @@ public class UserService {
         Set<Portfolio> joinedPortfolios = user.getCollaboratingPortfolios();
 
         joinedPortfolios.add(portfolio);
+        user.setCollaboratingPortfolios(joinedPortfolios);
 
         userRepository.saveAndFlush(user);
     }

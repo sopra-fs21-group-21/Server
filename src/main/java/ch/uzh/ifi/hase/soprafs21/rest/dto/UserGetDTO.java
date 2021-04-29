@@ -11,8 +11,8 @@ public class UserGetDTO {
     private Long id;
     private String username;
     private UserStatus status;
-    private List<PortfolioGetDTO> ownedPortfolios;
-    private Set<PortfolioGetDTO> collaboratingPortfolios;
+    private List<SmallPortfolioDTO> ownedPortfolios;
+    private Set<SmallPortfolioDTO> collaboratingPortfolios;
     private Date creationDate;
     private String token;
     private String mail;
@@ -42,35 +42,35 @@ public class UserGetDTO {
         this.status = status;
     }
 
-    public List<PortfolioGetDTO> getOwnedPortfolios() {
+    public List<SmallPortfolioDTO> getOwnedPortfolios() {
         return ownedPortfolios;
     }
 
     public void setOwnedPortfolios(List<Portfolio> ownedPortfolios) {
-        List<PortfolioGetDTO> portfolioDTOs = new ArrayList<>();
+        List<SmallPortfolioDTO> smallPortfolioDTOS = new ArrayList<>();
         for (Portfolio portfolio : ownedPortfolios)
         {
-            portfolioDTOs.add(
-                    DTOMapper.INSTANCE.convertEntityToPortfolioGetDTO(portfolio)
+            smallPortfolioDTOS.add(
+                    new SmallPortfolioDTO(DTOMapper.INSTANCE.convertEntityToPortfolioGetDTO(portfolio))
             );
         }
-        this.ownedPortfolios = portfolioDTOs;
+        this.ownedPortfolios = smallPortfolioDTOS;
     }
 
-    public Set<PortfolioGetDTO> getCollaboratingPortfolios() {
+    public Set<SmallPortfolioDTO> getCollaboratingPortfolios() {
         return collaboratingPortfolios;
     }
 
     public void setCollaboratingPortfolios(Set<Portfolio> collaboratingPortfolios) {
         // need to convert the entities into DTOs to avoid fractal get mapping
-        Set<PortfolioGetDTO> portfolioDTOs = new HashSet<>();
+        Set<SmallPortfolioDTO> smallPortfolioDTOS = new HashSet<>();
         for (Portfolio portfolio: collaboratingPortfolios)
         {
-            portfolioDTOs.add(
-                    DTOMapper.INSTANCE.convertEntityToPortfolioGetDTO(portfolio)
+            smallPortfolioDTOS.add(
+                    new SmallPortfolioDTO(DTOMapper.INSTANCE.convertEntityToPortfolioGetDTO(portfolio))
             );
         }
-        this.collaboratingPortfolios = portfolioDTOs;
+        this.collaboratingPortfolios = smallPortfolioDTOS;
     }
 
     public Date getCreationDate() {

@@ -22,6 +22,7 @@ public class UserController {
 
     private final UserService userService;
 
+
     UserController(UserService userService) {
         this.userService = userService;
     }
@@ -47,8 +48,12 @@ public class UserController {
     public UserGetDTO getUser(@PathVariable String userId) {
 
         User user = userService.getUser(Long.parseLong(userId));
+        UserGetDTO userGetDTO = DTOMapper.INSTANCE.convertEntityToUserGetDTO(user);
 
-        return DTOMapper.INSTANCE.convertEntityToUserGetDTO(user);
+        userGetDTO.setOwnedPortfolios(user.getOwnedPortfolios());
+        userGetDTO.setCollaboratingPortfolios(user.getCollaboratingPortfolios());
+
+        return userGetDTO;
     }
 
     @PostMapping("/users")
