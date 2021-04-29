@@ -11,7 +11,10 @@ import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs21.service.PortfolioService;
 import ch.uzh.ifi.hase.soprafs21.service.UserService;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -42,6 +45,9 @@ public class PortfolioController {
         }
         // Get the owner based on the token of the request;
         // It will also throw an exception if the token is not associated to any user
+        try {
+
+
         User owner = userService.getUserByToken(token);
         Set<User> traders = new HashSet<User>();
         traders.add(owner);
@@ -58,6 +64,12 @@ public class PortfolioController {
         PortfolioGetDTO portfolioDTO = portfolioService.makeGetDTO(portfolio);
         portfolioDTO.setJoinCode(portfolio.getPortfolioCode());
         return portfolioDTO;
+        }
+        catch (Exception e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+
+
     }
 
     @GetMapping("/portfolios")
@@ -65,23 +77,30 @@ public class PortfolioController {
     @ResponseBody
     public List<PortfolioGetDTO> getPortfolios(@RequestHeader(value = "token") String token)
     {
+
         List<Portfolio> portfolios = portfolioService.getSharedPortfolios();
         List<PortfolioGetDTO> portfolioGetDTOs = new ArrayList<>();
 
-        User user = userService.getUserByToken(token);
-
-        PortfolioGetDTO currentDto;
-        for (Portfolio portfolio : portfolios)
-        {
-            currentDto = portfolioService.makeGetDTO(portfolio);
-            if (portfolio.getTraders().contains(user))
+        try {
+            User user = userService.getUserByToken(token);
+            PortfolioGetDTO currentDto;
+            for (Portfolio portfolio : portfolios)
             {
-                currentDto.setJoinCode(portfolio.getPortfolioCode());
-            }
+                currentDto = portfolioService.makeGetDTO(portfolio);
+                if (portfolio.getTraders().contains(user))
+                {
+                    currentDto.setJoinCode(portfolio.getPortfolioCode());
+                }
 
-            portfolioGetDTOs.add(currentDto);
+                portfolioGetDTOs.add(currentDto);
+            }
+            return portfolioGetDTOs;
         }
-        return portfolioGetDTOs;
+        catch (Exception e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+
+
     }
 
 
@@ -121,6 +140,7 @@ public class PortfolioController {
                                         @RequestHeader(value = "token") String token
     )
     {
+        try{
         User user = userService.getUserByToken(token);
         Portfolio portfolio = portfolioService.findPortfolioById(portfolioId);
         PortfolioGetDTO portfolioDTO = portfolioService.makeGetDTO(portfolio);
@@ -130,6 +150,9 @@ public class PortfolioController {
             portfolioDTO.setJoinCode(portfolio.getPortfolioCode());
         }
         return portfolioDTO;
+    } catch (Exception e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
     }
 
 
