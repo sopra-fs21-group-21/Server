@@ -6,6 +6,7 @@ import ch.uzh.ifi.hase.soprafs21.constant.PositionType;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.*;
 
 @Entity
@@ -14,7 +15,7 @@ public class Portfolio implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="portfolioId")
     private Long id;
 
@@ -37,7 +38,7 @@ public class Portfolio implements Serializable {
     private String portfolioCode;
 
     @Column(nullable = false)
-    private PortfolioVisibility portfolioVisibility;
+    private PortfolioVisibility portfolioVisibility = PortfolioVisibility.SHARED;
 
     // Automatically sets balance to starter value when a new Portfolio gets created
     @Column(nullable = false)
@@ -50,6 +51,12 @@ public class Portfolio implements Serializable {
     // At index 0 you have the latest update, at index i you have the total value i days ago.
     @ElementCollection
     private List<BigDecimal> totalValue = new ArrayList<>();
+
+    @Column
+    private BigDecimal weeklyPerformance;
+
+    @Column
+    private BigDecimal totalPerformance;
 
     @Column
     private Date lastUpdate;
@@ -129,6 +136,30 @@ public class Portfolio implements Serializable {
 
     public void setPositions(List<Position> positions) {
         this.positions = positions;
+    }
+
+    public BigDecimal getWeeklyPerformance() {
+        List<BigDecimal> valueTimeSeries = getTotalValue();
+        if (valueTimeSeries.size() >= 7)
+        {
+            // Value today divided by value last week
+            return valueTimeSeries.get(0)
+                    .divide(valueTimeSeries.get(6), MathContext.DECIMAL32)
+                    .subtract(BigDecimal.valueOf(1));
+        }
+        else
+        {
+            return getTotalPerformance();
+        }
+    }
+
+    public BigDecimal getTotalPerformance()
+    {
+        List<BigDecimal> valueTimeSeries = getTotalValue();
+        // Performance over the last element
+        return valueTimeSeries.get(valueTimeSeries.size() - 1)
+                .divide(valueTimeSeries.get(0), MathContext.DECIMAL32)
+                .subtract(BigDecimal.valueOf(1));
     }
 
     public List<BigDecimal> getTotalValue() {
