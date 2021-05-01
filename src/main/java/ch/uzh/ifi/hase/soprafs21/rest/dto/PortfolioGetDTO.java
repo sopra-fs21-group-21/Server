@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs21.rest.dto;
 
+import ch.uzh.ifi.hase.soprafs21.constant.PortfolioVisibility;
 import ch.uzh.ifi.hase.soprafs21.entity.Position;
 import ch.uzh.ifi.hase.soprafs21.entity.User;
 import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
@@ -20,6 +21,7 @@ public class PortfolioGetDTO {
     BigDecimal weeklyPerformance;
     BigDecimal totalPerformance;
     BigDecimal balance;
+    PortfolioVisibility portfolioVisibility;
 
     public String getJoinCode() {
         return joinCode;
@@ -144,5 +146,13 @@ public class PortfolioGetDTO {
 
     public void setBalance(BigDecimal balance) {
         this.balance = balance;
+    }
+
+    public PortfolioVisibility getPortfolioVisibility() {
+        return portfolioVisibility;
+    }
+
+    public void setPortfolioVisibility(PortfolioVisibility portfolioVisibility) {
+        this.portfolioVisibility = portfolioVisibility;
     }
 }
