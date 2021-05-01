@@ -8,12 +8,14 @@ import ch.uzh.ifi.hase.soprafs21.rest.dto.PortfolioGetDTO;
 import ch.uzh.ifi.hase.soprafs21.rest.dto.PortfolioPostDTO;
 import ch.uzh.ifi.hase.soprafs21.rest.dto.PositionPostDTO;
 import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
+import ch.uzh.ifi.hase.soprafs21.service.FinanceService;
 import ch.uzh.ifi.hase.soprafs21.service.PortfolioService;
 import ch.uzh.ifi.hase.soprafs21.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -202,6 +204,18 @@ public class PortfolioController {
 
         // we need to add capital and total value as they are not stored in the database
         return portfolioService.makeGetDTO(portfolio);
+    }
+
+    @GetMapping("positions/{positionCode}")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public BigDecimal getPositionPrice(@PathVariable String positionCode,
+                                       @RequestHeader(value = "token") String token)
+    {
+        // Even though we do not need a user, this will make sure
+        // a valid token is being used.
+        userService.getUserByToken(token);
+        return FinanceService.getStockPrice(positionCode, "CHF");
     }
 
 
