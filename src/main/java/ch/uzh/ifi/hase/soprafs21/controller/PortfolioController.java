@@ -11,7 +11,6 @@ import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs21.service.PortfolioService;
 import ch.uzh.ifi.hase.soprafs21.service.UserService;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -49,7 +48,7 @@ public class PortfolioController {
 
 
         User owner = userService.getUserByToken(token);
-        Set<User> traders = new HashSet<User>();
+        Set<User> traders = new HashSet<>();
         traders.add(owner);
 
         portfolio.setOwner(owner);
@@ -109,7 +108,7 @@ public class PortfolioController {
      * the body will contain
      * code: String, the join code of the portfolio
      */
-    @PutMapping("portfolios/")
+    @PutMapping("/portfolios")
     @ResponseStatus(HttpStatus.ACCEPTED)
     @ResponseBody
     public PortfolioGetDTO addTrader(@RequestHeader(value = "join_code") String code,
@@ -124,8 +123,7 @@ public class PortfolioController {
         // is not a trader in the portfolio yet, but userService will not.
         userService.addPortfolioToUser(portfolio, token);
 
-        PortfolioGetDTO portfolioDTO = portfolioService.makeGetDTO(portfolio);
-        return portfolioDTO;
+        return portfolioService.makeGetDTO(portfolio);
     }
 
     /**
