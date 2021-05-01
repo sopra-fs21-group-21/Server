@@ -11,11 +11,13 @@ public class SmallPortfolioDTO {
     private String name;
 
     private BigDecimal weeklyPerformance;
+    private BigDecimal balance;
 
     public SmallPortfolioDTO(PortfolioGetDTO portfolioGetDTO) {
         this.id = portfolioGetDTO.getId();
         this.name = portfolioGetDTO.getName();
         this.weeklyPerformance = portfolioGetDTO.getWeeklyPerformance();
+        this.balance = portfolioGetDTO.getBalance();
     }
 
     public Long getId() {
@@ -42,4 +44,11 @@ public class SmallPortfolioDTO {
         this.weeklyPerformance = weeklyPerformance;
     }
 
+    public BigDecimal getBalance() {
+        return balance;
+    }
+
+    public void setBalance(BigDecimal balance) {
+        this.balance = balance;
+    }
 }

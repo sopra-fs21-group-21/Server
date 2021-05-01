@@ -19,8 +19,9 @@ public class PortfolioGetDTO {
     BigDecimal totValue;
     BigDecimal weeklyPerformance;
     BigDecimal totalPerformance;
+    BigDecimal balance;
 
-public String getJoinCode() {
+    public String getJoinCode() {
         return joinCode;
     }
 
@@ -135,5 +136,13 @@ public String getJoinCode() {
 
     public void setTotalPerformance(BigDecimal totalPerformance) {
         this.totalPerformance = totalPerformance;
+    }
+
+    public BigDecimal getBalance() {
+        return balance;
+    }
+
+    public void setBalance(BigDecimal balance) {
+        this.balance = balance;
     }
 }
