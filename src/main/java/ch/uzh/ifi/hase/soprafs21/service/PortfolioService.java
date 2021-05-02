@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 
 public class PortfolioService {
+
     private final PortfolioRepository portfolioRepository;
     private final PositionService positionService;
     private final UserService userService;
@@ -134,7 +135,7 @@ public class PortfolioService {
         position = positionService.openPosition(position);
 
         // Check there is sufficient cash
-        if (portfolio.getBalance().compareTo(position.getValue()) == -1)
+        if (portfolio.getBalance().compareTo(position.getValue()) < 0)
         {
             // Not enough cash buddy
             throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "Can't afford that :(");
@@ -210,11 +211,11 @@ public class PortfolioService {
     {
         Portfolio targetPortfolio = portfolioRepository.getOne(portfolio.getId());
         User actor = userService.getUserByToken(token);
-        if (targetPortfolio.getTraders().contains(actor))
+        if (!targetPortfolio.getTraders().contains(actor))
         {
-            return;
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You are not authorized to execute this operation");
         }
-        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You are not authorized to execute this operation");
+
     }
 
     // Update the portfolio, if 24 hours have passed from the last update, push the updated value to the time series

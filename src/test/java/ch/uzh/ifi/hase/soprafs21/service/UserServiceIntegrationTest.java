@@ -38,9 +38,12 @@ public class UserServiceIntegrationTest {
     public void createUser_validInputs_success() {
         // given
         assertNull(userRepository.findByUsername("testUsername"));
+        assertNull(userRepository.findByMail("testMail"));
 
         User testUser = new User();
         testUser.setUsername("testUsername");
+        testUser.setPassword("testPassword");
+        testUser.setMail("testMail");
 
         // when
         User createdUser = userService.createUser(testUser);
@@ -49,15 +52,20 @@ public class UserServiceIntegrationTest {
         assertEquals(testUser.getId(), createdUser.getId());
         assertEquals(testUser.getUsername(), createdUser.getUsername());
         assertNotNull(createdUser.getToken());
-        assertEquals(UserStatus.OFFLINE, createdUser.getStatus());
+        assertEquals(UserStatus.ONLINE, createdUser.getStatus());
+
+
     }
 
     @Test
     public void createUser_duplicateUsername_throwsException() {
         assertNull(userRepository.findByUsername("testUsername"));
+        assertNull(userRepository.findByMail("testMail"));
 
         User testUser = new User();
         testUser.setUsername("testUsername");
+        testUser.setPassword("testPassword");
+        testUser.setMail("testMail");
         User createdUser = userService.createUser(testUser);
 
         // attempt to create second user with same username

@@ -34,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * The return values are extensively checked in PositionServiceTest and PortfolioServiceTest.
  */
 
-@WebMvcTest(PortfolioController.class)
+@WebMvcTest(controllers = PortfolioController.class)
 public class PortfolioControllerTest {
 
     @Autowired
