@@ -63,7 +63,18 @@ public class PositionService {
         newPosition.setOpeningPrice(
                 newPosition.getPrice()
         );
-        newPosition.setValue(newPosition.getOpeningPrice().multiply(newPosition.getAmount()));
+        newPosition.setValue(
+                switch(newPosition.getType())
+                        {
+                            case STOCK_SHORT:
+                                // (Opening price - current price) * amount
+                                yield newPosition.getOpeningPrice()
+                                        .subtract(newPosition.getPrice(), MathContext.DECIMAL32)
+                                        .multiply(newPosition.getAmount(), MathContext.DECIMAL32);
+                            default:
+                                yield newPosition.getAmount().multiply(newPosition.getPrice(), MathContext.DECIMAL32);
+                        }
+        );
         newPosition.setCurrency("CHF");
 
         newPosition = positionRepository.saveAndFlush(newPosition);
