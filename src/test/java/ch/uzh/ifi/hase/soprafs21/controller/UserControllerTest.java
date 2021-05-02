@@ -132,21 +132,21 @@ public class UserControllerTest {
     // POST create user
     @Test
     public void createUser_validInput_userCreated() throws Exception {
-        // given
-
+        // new valid user data gets sent to the API
         UserPostDTO userPostDTO = new UserPostDTO();
         userPostDTO.setUsername("testUsername");
         userPostDTO.setPassword("testPassword");
         userPostDTO.setMail("testMail");
 
+        // The creation of the user in the UserService will return the created User
         given(userService.createUser(Mockito.any())).willReturn(testUser);
 
-        // when/then -> do the request + validate the result
+        // when/then -> do the request
         MockHttpServletRequestBuilder postRequest = post("/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(userPostDTO));
 
-        // then
+        // We validate that the user has been created according to the input and check if the generated values have been generated
         mockMvc.perform(postRequest)
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", is(testUser.getId().intValue())))
@@ -220,14 +220,20 @@ public class UserControllerTest {
     //PUT log in user
     @Test
     public void logInUser_validInput_loggedIn() throws Exception{
+        // Since the UserStatus is being changed to ONLINE this is a PUT mapping
+
+        // We do not know the user before logging in, hence no specification (e.g. users/1)
         String url = "/users";
 
+        // Setup the simulated user login data
         UserPutDTO userPutDTO = new UserPutDTO();
         userPutDTO.setUsername("testUsername");
         userPutDTO.setPassword("testPassword");
 
+        //Assume the login is successful and the testUser gets returned
         given(userService.logInUser(Mockito.any())).willReturn(testUser);
 
+        //Check that the user is ONLINE and gets returned correctly
         mockMvc.perform(MockMvcRequestBuilders.put(url)
                 .contentType(MediaType.APPLICATION_JSON_VALUE).content(asJsonString(userPutDTO)))
                 .andExpect(status().isOk())
