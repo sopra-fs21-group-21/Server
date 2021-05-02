@@ -170,14 +170,40 @@ public class PortfolioServiceTest {
     public void openPosition_notEnoughMoney_throwsException(){
         Portfolio portfolio = portfolioService.createPortfolio(testSharedPortfolio);
 
-        System.out.println(portfolio.getBalance());
-
         testPosition.setValue(BigDecimal.valueOf(10000000));
 
         Mockito.when(positionService.openPosition(Mockito.any())).thenReturn(testPosition);
         Mockito.when(portfolioRepository.findById(Mockito.any())).thenReturn(Optional.of(portfolio));
 
         assertThrows(ResponseStatusException.class, () -> portfolioService.openPosition(portfolio.getId(), testPosition));
+    }
+
+    @Test
+    public void closePosition_validInput_success(){
+        Portfolio portfolio = portfolioService.createPortfolio(testSharedPortfolio);
+
+        testPosition.setValue(BigDecimal.valueOf(2000));
+        portfolio.setPositions(positionList);
+
+        Mockito.when(positionService.updatePosition(Mockito.any())).thenReturn(testPosition);
+        Mockito.when(portfolioRepository.findById(Mockito.any())).thenReturn(Optional.of(portfolio));
+
+        portfolioService.closePosition(portfolio.getId(), 1L);
+
+        // Since the Portfolio starts with 100000 the added value from a long close is 2000
+        assertEquals(BigDecimal.valueOf(102000), portfolio.getBalance());
+        assertEquals(0, portfolio.getPositions().size());
+    }
+
+    @Test
+    public void closePosition_noSuchPosition_throwsException(){
+        Portfolio portfolio = portfolioService.createPortfolio(testSharedPortfolio);
+
+        testPosition.setValue(BigDecimal.valueOf(2000));
+        
+        Mockito.when(portfolioRepository.findById(Mockito.any())).thenReturn(Optional.of(portfolio));
+
+        assertThrows(ResponseStatusException.class, () -> portfolioService.closePosition(portfolio.getId(), 1L));
     }
 
     @Test
@@ -196,5 +222,20 @@ public class PortfolioServiceTest {
 
         //Check that the user is indeed a trader of said portfolio
         assertTrue(testSharedPortfolio.getTraders().contains(testUser2));
+    }
+
+    @Test
+    public void addTraderToPortfolio_wrongCode_throwsException(){
+        // given -> a portfolio and user not in that portfolio already exists
+        Portfolio portfolio = portfolioService.createPortfolio(testSharedPortfolio);
+
+        // The user that wants to join will be returned
+        Mockito.when(userService.getUserByToken(Mockito.any())).thenReturn(testUser2);
+
+        // No portfolio with that code gets returned
+        Mockito.when(portfolioRepository.findPortfolioByPortfolioCode(Mockito.any())).thenReturn(Optional.empty());
+
+        // An error gets thrown, because the joinCode is wrong
+        assertThrows(ResponseStatusException.class, () -> portfolioService.addTraderToPortfolio("wrongCode", testUser2.getToken()));
     }
 }
