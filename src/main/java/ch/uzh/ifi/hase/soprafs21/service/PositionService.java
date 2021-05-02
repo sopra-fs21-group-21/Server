@@ -63,7 +63,7 @@ public class PositionService {
         newPosition.setOpeningPrice(
                 newPosition.getPrice()
         );
-        newPosition.setValue(newPosition.getOpeningPrice());
+        newPosition.setValue(newPosition.getOpeningPrice().multiply(newPosition.getAmount()));
         newPosition.setCurrency("CHF");
 
         newPosition = positionRepository.saveAndFlush(newPosition);
