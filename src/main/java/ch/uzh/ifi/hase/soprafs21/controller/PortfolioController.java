@@ -39,11 +39,7 @@ public class PortfolioController {
     public PortfolioGetDTO createNewPortfolio(@RequestBody PortfolioPostDTO postDTO, @RequestHeader(value = "token") String token)
     {
         Portfolio portfolio = DTOMapper.INSTANCE.convertPortfolioPostDTOtoEntity(postDTO);
-        if (portfolio.getPortfolioVisibility() == null)
-        {
-            // DEFAULT VISIBILITY
-            portfolio.setPortfolioVisibility(PortfolioVisibility.SHARED);
-        }
+
         // Get the owner based on the token of the request;
         // It will also throw an exception if the token is not associated to any user
         try {
