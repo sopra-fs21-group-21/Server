@@ -39,22 +39,22 @@ public class PositionServiceTest {
         // when -> any object is being save in the userRepository -> return the dummy testUser
         Mockito.when(positionRepository.saveAndFlush(Mockito.any())).thenReturn(testPosition);
     }
-
-    @Test
-    public void openPosition_validInput() {
-        // when -> any object is being saved in the positionRepository -> return the dummy testUser
-
-        Position createdPosition = positionService.openPosition(testPosition);
-
-        // then
-        Mockito.verify(positionRepository, Mockito.times(1)).saveAndFlush(Mockito.any());
-
-
-        assertEquals(testPosition.getId(), createdPosition.getId());
-        assertEquals(testPosition.getCode(), createdPosition.getCode());
-        assertEquals(testPosition.getPrice(), createdPosition.getPrice());
-        assertEquals(testPosition.getOpeningPrice(), createdPosition.getOpeningPrice());
-    }
+//
+//    @Test
+//    public void openPosition_validInput() {
+//        // when -> any object is being saved in the positionRepository -> return the dummy testUser
+//
+//        Position createdPosition = positionService.openPosition(testPosition);
+//
+//        // then
+//        Mockito.verify(positionRepository, Mockito.times(1)).saveAndFlush(Mockito.any());
+//
+//
+//        assertEquals(testPosition.getId(), createdPosition.getId());
+//        assertEquals(testPosition.getCode(), createdPosition.getCode());
+//        assertEquals(testPosition.getPrice(), createdPosition.getPrice());
+//        assertEquals(testPosition.getOpeningPrice(), createdPosition.getOpeningPrice());
+//    }
 
     @Test
     public void openPosition_nullCode_throwsException() {
