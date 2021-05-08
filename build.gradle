@@ -32,7 +32,7 @@ springBoot {
 }
 
 dependencies {
-    runtimeOnly 'org.postgresql:postgresql'
+    //compile('javax.xml.bind:jaxb-api:2.3.0')
 
     implementation 'org.mapstruct:mapstruct:1.3.1.Final'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.3.1.Final'
@@ -40,6 +40,10 @@ dependencies {
 
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    implementation platform('com.amazonaws:aws-java-sdk-bom:1.11.+')
+    implementation 'com.amazonaws:aws-java-sdk-s3'
+    implementation('org.postgresql:postgresql')
 
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'com.h2database:h2'
@@ -94,8 +98,8 @@ if (secretPropsFile.exists()) {
 
 sonarqube {
     properties {
-        property "sonar.projectKey", "<your-sonar-project-key>"
-        property "sonar.organization", "<your-sonar-organization>"
+        property "sonar.projectKey", "sopra-fs21-group-21_Server"
+        property "sonar.organization", "sopra-fs21-group-21"
         property "sonar.host.url", "https://sonarcloud.io"
         property "sonar.coverage.jacoco.xmlReportPaths", ["$buildDir/jacocoReportDir/test/jacocoTestReport.xml"]
         property "sonar.cpd.exclusions", "**/entity/*.java,**/rest/dto/*.java"
