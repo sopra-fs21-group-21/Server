@@ -1,12 +1,17 @@
 package ch.uzh.ifi.hase.soprafs21.service;
 
 import org.json.JSONObject;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
@@ -31,10 +36,9 @@ public class FinanceService {
      */
     private static String findCurrency(String stock)
     {
-        // Stocks ending in .F are traded in the Frankfurt exchange
-        if (Pattern.compile(".\\.F").
-                matcher(stock)
-                .find())
+        // Stocks ending in .F or .FRK are traded in the Frankfurt exchange
+        if (Pattern.compile(".\\.F").matcher(stock).find() ||
+            Pattern.compile(".\\.FRK").matcher(stock).find())
         {
             return "EUR";
         }
@@ -75,11 +79,71 @@ public class FinanceService {
         // We may or may not have got a response, hence the try-catch syntax
         try {
             JSONObject body = new JSONObject(response.get().body());
-            //body = body.getJSONObject("Global quote");
+            // Check that the response is valid
+            if (!body.getJSONObject("Global Quote").has("05. price"))
+            {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid stock code.");
+            }
             BigDecimal originalPrice = body
                     .getJSONObject("Global Quote")
                     .getBigDecimal("05. price");
             return convertPrice(stock, originalPrice, currency);
+        }
+        catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static Map<String, BigDecimal> getStockInfo(String stock, String currency)
+    {
+
+        // I spent a bunch of hours on this and couldn't find a prettier way to add URI parameters
+        String specificAddress = address +
+                "&function=GLOBAL_QUOTE" +
+                "&symbol=" + stock;
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder().uri(
+                URI.create(specificAddress))
+                .build();
+
+        // Send the request and store the result in this special type for Async programming
+
+        CompletableFuture<HttpResponse<String>> response = client
+                .sendAsync(request, HttpResponse.BodyHandlers.ofString());
+
+        Map<String, BigDecimal> stockInformation = new HashMap();
+        // We may or may not have got a response, hence the try-catch syntax
+        try {
+            JSONObject body = new JSONObject(response.get().body());
+            // Check that the response is valid
+            if (!body.getJSONObject("Global Quote").has("05. price"))
+            {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid stock code.");
+            }
+            // Insert current price
+            BigDecimal originalPrice = body
+                    .getJSONObject("Global Quote")
+                    .getBigDecimal("05. price");
+            stockInformation.put("currentPrice", convertPrice(stock, originalPrice, currency));
+            // Insert trading volume (i.e. number of stocks traded)
+            BigDecimal tradingVolume = body
+                    .getJSONObject("Global Quote")
+                    .getBigDecimal("06. volume");
+            stockInformation.put("lastDayVolume", tradingVolume);
+            // Insert previous day close
+            BigDecimal previousClose = body
+                    .getJSONObject("Global Quote")
+                    .getBigDecimal("08. previous close");
+            stockInformation.put("lastDayClose",
+                    convertPrice(stock, previousClose, currency));
+            // Change from previous close
+            stockInformation.put("changeFromLastClose",
+                    originalPrice
+                            .subtract(previousClose, MathContext.DECIMAL32)
+                            .divide(previousClose, MathContext.DECIMAL32));
+            return stockInformation;
         }
         catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();

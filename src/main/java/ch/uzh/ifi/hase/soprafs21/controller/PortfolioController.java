@@ -16,10 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @RestController
 public class PortfolioController {
@@ -69,10 +66,19 @@ public class PortfolioController {
 
     }
 
+    /**
+     * RETURNS ALL PUBLIC PORTFOLIOS
+     * Use for leaderboard
+     *
+     * @param token
+     * @return
+     */
     @GetMapping("/portfolios")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<PortfolioGetDTO> getPortfolios(@RequestHeader(value = "token") String token)
+    public List<PortfolioGetDTO> getPortfolios(@RequestHeader(value = "token") String token,
+                                               @RequestHeader(value = "sort") String sorting
+    )
     {
 
         List<Portfolio> portfolios = portfolioService.getSharedPortfolios();
@@ -90,6 +96,28 @@ public class PortfolioController {
                 }
 
                 portfolioGetDTOs.add(currentDto);
+            }
+            if (sorting.compareTo("weekly") == 0)
+            {
+                // Sort by weekly performance
+                portfolioGetDTOs.sort(
+                        new Comparator<PortfolioGetDTO>() {
+                            @Override
+                            public int compare(PortfolioGetDTO o1, PortfolioGetDTO o2) {
+                                return o1.getWeeklyPerformance().compareTo(o2.getWeeklyPerformance());
+                            }
+                        });
+            }
+            else
+            {
+                // Sort by total performance
+                portfolioGetDTOs.sort(
+                        new Comparator<PortfolioGetDTO>() {
+                            @Override
+                            public int compare(PortfolioGetDTO o1, PortfolioGetDTO o2) {
+                                return o1.getTotalPerformance().compareTo(o2.getTotalPerformance());
+                        }
+                });
             }
             return portfolioGetDTOs;
         }
@@ -212,6 +240,18 @@ public class PortfolioController {
         // a valid token is being used.
         userService.getUserByToken(token);
         return FinanceService.getStockPrice(positionCode, "CHF");
+    }
+
+    @GetMapping("positions/{positionCode}/more")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public Map<String, BigDecimal> getPositionInfo(@PathVariable String positionCode,
+                                       @RequestHeader(value = "token") String token)
+    {
+        // Even though we do not need a user, this will make sure
+        // a valid token is being used.
+        userService.getUserByToken(token);
+        return FinanceService.getStockInfo(positionCode, "CHF");
     }
 
 
