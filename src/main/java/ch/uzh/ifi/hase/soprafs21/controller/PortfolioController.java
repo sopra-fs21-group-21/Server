@@ -39,8 +39,6 @@ public class PortfolioController {
 
         // Get the owner based on the token of the request;
         // It will also throw an exception if the token is not associated to any user
-        try {
-
 
         User owner = userService.getUserByToken(token);
         Set<User> traders = new HashSet<>();
@@ -58,12 +56,6 @@ public class PortfolioController {
         PortfolioGetDTO portfolioDTO = portfolioService.makeGetDTO(portfolio);
         portfolioDTO.setJoinCode(portfolio.getPortfolioCode());
         return portfolioDTO;
-        }
-        catch (Exception e){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-        }
-
-
     }
 
     /**
@@ -84,7 +76,6 @@ public class PortfolioController {
         List<Portfolio> portfolios = portfolioService.getSharedPortfolios();
         List<PortfolioGetDTO> portfolioGetDTOs = new ArrayList<>();
 
-        try {
             User user = userService.getUserByToken(token);
             PortfolioGetDTO currentDto;
             for (Portfolio portfolio : portfolios)
@@ -120,10 +111,7 @@ public class PortfolioController {
                 });
             }
             return portfolioGetDTOs;
-        }
-        catch (Exception e){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-        }
+
 
 
     }
@@ -161,10 +149,8 @@ public class PortfolioController {
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public PortfolioGetDTO getPortfolio(@PathVariable Long portfolioId,
-                                        @RequestHeader(value = "token") String token
-    )
+                                        @RequestHeader(value = "token") String token)
     {
-        try{
         User user = userService.getUserByToken(token);
         Portfolio portfolio = portfolioService.findPortfolioById(portfolioId);
         PortfolioGetDTO portfolioDTO = portfolioService.makeGetDTO(portfolio);
@@ -174,9 +160,6 @@ public class PortfolioController {
             portfolioDTO.setJoinCode(portfolio.getPortfolioCode());
         }
         return portfolioDTO;
-    } catch (Exception e){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-        }
     }
 
 

@@ -13,16 +13,20 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 
 import static ch.uzh.ifi.hase.soprafs21.controller.UserControllerTest.asJsonString;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -195,6 +199,20 @@ public class PortfolioControllerTest {
 
         mockMvc.perform(request)
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    public void getPortfolio_wrongToken_ThrowsException() throws Exception
+    {
+        MockHttpServletRequestBuilder request = get("/portfolios/1")
+                .header("token", "token");
+
+
+        Mockito.when(userService.getUserByToken(Mockito.anyString())).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Invalid token"));
+
+        mockMvc.perform(request)
+                .andExpect(status().isNotFound())
+                .andExpect(result -> assertEquals("404 NOT_FOUND \"Invalid token\"", Objects.requireNonNull(result.getResolvedException()).getMessage()));
     }
 
     @Test
