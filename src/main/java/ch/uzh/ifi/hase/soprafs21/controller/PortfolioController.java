@@ -16,10 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @RestController
 public class PortfolioController {
@@ -69,10 +66,19 @@ public class PortfolioController {
 
     }
 
+    /**
+     * RETURNS ALL PUBLIC PORTFOLIOS
+     * Use for leaderboard
+     *
+     * @param token
+     * @return
+     */
     @GetMapping("/portfolios")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<PortfolioGetDTO> getPortfolios(@RequestHeader(value = "token") String token)
+    public List<PortfolioGetDTO> getPortfolios(@RequestHeader(value = "token") String token,
+                                               @RequestHeader(value = "sort") String sorting
+    )
     {
 
         List<Portfolio> portfolios = portfolioService.getSharedPortfolios();
@@ -90,6 +96,14 @@ public class PortfolioController {
                 }
 
                 portfolioGetDTOs.add(currentDto);
+            }
+            if (sorting.compareTo("weekly") == 0)
+            {
+                portfolioGetDTOs.sort(Comparator.comparing(PortfolioGetDTO::getWeeklyPerformance));
+            }
+            else
+            {
+                portfolioGetDTOs.sort(Comparator.comparing(PortfolioGetDTO::getTotalPerformance));
             }
             return portfolioGetDTOs;
         }
