@@ -33,10 +33,9 @@ public class FinanceService {
      */
     private static String findCurrency(String stock)
     {
-        // Stocks ending in .F are traded in the Frankfurt exchange
-        if (Pattern.compile(".\\.F").
-                matcher(stock)
-                .find())
+        // Stocks ending in .F or .FRK are traded in the Frankfurt exchange
+        if (Pattern.compile(".\\.F").matcher(stock).find() ||
+            Pattern.compile(".\\.FRK").matcher(stock).find())
         {
             return "EUR";
         }
@@ -89,7 +88,7 @@ public class FinanceService {
         return null;
     }
 
-    public static Map<String, BigDecimal> getPositionInfo(String stock, String currency)
+    public static Map<String, BigDecimal> getStockInfo(String stock, String currency)
     {
 
         // I spent a bunch of hours on this and couldn't find a prettier way to add URI parameters

@@ -242,6 +242,18 @@ public class PortfolioController {
         return FinanceService.getStockPrice(positionCode, "CHF");
     }
 
+    @GetMapping("positions/{positionCode}/more")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public Map<String, BigDecimal> getPositionInfo(@PathVariable String positionCode,
+                                       @RequestHeader(value = "token") String token)
+    {
+        // Even though we do not need a user, this will make sure
+        // a valid token is being used.
+        //userService.getUserByToken(token);
+        return FinanceService.getStockInfo(positionCode, "CHF");
+    }
+
 
 
 }
