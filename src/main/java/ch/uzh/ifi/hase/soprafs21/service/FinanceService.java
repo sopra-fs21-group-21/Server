@@ -1,6 +1,9 @@
 package ch.uzh.ifi.hase.soprafs21.service;
 
 import org.json.JSONObject;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.net.URI;
@@ -76,7 +79,11 @@ public class FinanceService {
         // We may or may not have got a response, hence the try-catch syntax
         try {
             JSONObject body = new JSONObject(response.get().body());
-            //body = body.getJSONObject("Global quote");
+            // Check that the response is valid
+            if (!body.getJSONObject("Global Quote").has("05. price"))
+            {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid stock code.");
+            }
             BigDecimal originalPrice = body
                     .getJSONObject("Global Quote")
                     .getBigDecimal("05. price");
@@ -110,6 +117,11 @@ public class FinanceService {
         // We may or may not have got a response, hence the try-catch syntax
         try {
             JSONObject body = new JSONObject(response.get().body());
+            // Check that the response is valid
+            if (!body.getJSONObject("Global Quote").has("05. price"))
+            {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid stock code.");
+            }
             // Insert current price
             BigDecimal originalPrice = body
                     .getJSONObject("Global Quote")
