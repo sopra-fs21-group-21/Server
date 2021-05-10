@@ -5,6 +5,7 @@ import ch.uzh.ifi.hase.soprafs21.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs21.rest.dto.UserPostDTO;
 import ch.uzh.ifi.hase.soprafs21.rest.dto.UserPutDTO;
 import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
+import ch.uzh.ifi.hase.soprafs21.service.MailService;
 import ch.uzh.ifi.hase.soprafs21.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -21,10 +22,11 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final MailService mailService;
 
-
-    UserController(UserService userService) {
+    UserController(UserService userService, MailService mailService) {
         this.userService = userService;
+        this.mailService = mailService;
     }
 
     @GetMapping("/users")
@@ -32,7 +34,7 @@ public class UserController {
     @ResponseBody
     public List<UserGetDTO> getAllUsers() {
         // fetch all users in the internal representation
-        List<User> users = userService.getUsers();
+        List<User> users = userService.getAllUsers();
         List<UserGetDTO> userGetDTOs = new ArrayList<>();
 
         // convert each user to the API representation
@@ -47,7 +49,7 @@ public class UserController {
     @ResponseBody
     public UserGetDTO getUser(@PathVariable String userId) {
 
-        User user = userService.getUser(Long.parseLong(userId));
+        User user = userService.getUserById(Long.parseLong(userId));
         UserGetDTO userGetDTO = DTOMapper.INSTANCE.convertEntityToUserGetDTO(user);
 
         userGetDTO.setOwnedPortfolios(user.getOwnedPortfolios());
@@ -60,6 +62,7 @@ public class UserController {
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
     public UserGetDTO createUser(@RequestBody UserPostDTO userPostDTO) {
+
         // convert API user to internal representation
         User userInput = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
 
@@ -97,4 +100,13 @@ public class UserController {
         User userInput = DTOMapper.INSTANCE.convertUserPutDTOtoEntity(userPutDTO);
         userService.modifyUser(userInput, Long.parseLong(userId), token);
     }
+
+    @PutMapping(value = "/users/forgotPassword")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseBody
+    public void forgotPassword(@RequestBody UserPutDTO userPutDTO) {
+        User userInput = DTOMapper.INSTANCE.convertUserPutDTOtoEntity(userPutDTO);
+        mailService.forgotPassword(userInput.getUsername());
+    }
+
 }

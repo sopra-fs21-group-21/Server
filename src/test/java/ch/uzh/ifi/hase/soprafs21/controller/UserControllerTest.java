@@ -25,6 +25,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -76,7 +77,7 @@ public class UserControllerTest {
         List<User> allUsers = Collections.singletonList(testUser);
 
         // this mocks the UserService -> we define above what the userService should return when getUsers() is called
-        given(userService.getUsers()).willReturn(allUsers);
+        given(userService.getAllUsers()).willReturn(allUsers);
 
         // when
         MockHttpServletRequestBuilder getRequest = get("/users").contentType(MediaType.APPLICATION_JSON);
@@ -94,7 +95,7 @@ public class UserControllerTest {
         // given
 
         // this mocks the UserService -> we define above what the userService should return when getUser() is called
-        given(userService.getUser(1)).willReturn(testUser);
+        given(userService.getUserById(1)).willReturn(testUser);
 
         // when
         MockHttpServletRequestBuilder getRequest = get("/users/1").contentType(MediaType.APPLICATION_JSON);
@@ -117,7 +118,7 @@ public class UserControllerTest {
     @Test
     public void givenUsers_whenGetUser_thenReturnError() throws Exception {
         ResponseStatusException exe = new ResponseStatusException(HttpStatus.NOT_FOUND, "No such user exists");
-        given(userService.getUser(Mockito.anyLong())).willThrow(exe);
+        given(userService.getUserById(Mockito.anyLong())).willThrow(exe);
 
         MockHttpServletRequestBuilder getRequest = get("/users/123")
                 .contentType(MediaType.APPLICATION_JSON);
@@ -185,7 +186,7 @@ public class UserControllerTest {
         // then
         mockMvc.perform(postRequest)
                 .andExpect(status().isConflict())
-                .andExpect(result -> assertEquals("409 CONFLICT \"The username provided is not unique. Therefore, the user could not be created!\"", result.getResolvedException().getMessage()));
+                .andExpect(result -> assertEquals("409 CONFLICT \"The username provided is not unique. Therefore, the user could not be created!\"", Objects.requireNonNull(result.getResolvedException()).getMessage()));
     }
 
     // Put tests

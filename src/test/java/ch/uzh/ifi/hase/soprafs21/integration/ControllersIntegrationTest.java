@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -49,7 +50,8 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties="spring.main.lazy-initialization=true")
+
+@SpringBootTest
 public class ControllersIntegrationTest {
 
     @Autowired
@@ -61,18 +63,21 @@ public class ControllersIntegrationTest {
     @Autowired
     private UserService userService;
 
+    @Qualifier("userRepository")
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
     private PortfolioService portfolioService;
 
+    @Qualifier("portfolioRepository")
     @Autowired
     private PortfolioRepository portfolioRepository;
 
     @Autowired
     private PositionService positionService;
 
+    @Qualifier("positionRepository")
     @Autowired
     private PositionRepository positionRepository;
     /**

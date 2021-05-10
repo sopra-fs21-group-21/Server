@@ -18,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * @see UserService
  */
+
 @WebAppConfiguration
 @SpringBootTest
 public class UserServiceIntegrationTest {

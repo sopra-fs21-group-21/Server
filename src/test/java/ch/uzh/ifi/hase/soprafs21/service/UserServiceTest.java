@@ -87,7 +87,7 @@ public class UserServiceTest {
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(testUser));
 
         // then -> get user with id 1 -> check that correct user gets returned
-        assertEquals(testUser, userService.getUser(1));
+        assertEquals(testUser, userService.getUserById(1));
     }
 
     @Test
@@ -98,7 +98,7 @@ public class UserServiceTest {
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.empty());
 
         // then -> attempt to get user by id that does not exist -> check that an error is thrown
-        assertThrows(ResponseStatusException.class, () -> userService.getUser(2));
+        assertThrows(ResponseStatusException.class, () -> userService.getUserById(2));
     }
 
     @Test

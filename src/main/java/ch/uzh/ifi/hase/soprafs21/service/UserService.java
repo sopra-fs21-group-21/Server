@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.*;
 
 /**
@@ -34,18 +33,19 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public List<User> getUsers() {
+    public List<User> getAllUsers() {
         return this.userRepository.findAll();
     }
 
-    public User getUser(long id){
-        Optional<User> user = this.userRepository.findById(id);
-        if (user.isPresent()){
-            return user.get();
-        }
-        else{
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No such user exists");
-        }
+    public User getUserById(long id){
+        return userRepository.findById(id)
+                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "No such user exists"));
+    }
+
+    public User getUserByToken(String token)
+    {
+        return userRepository.findByToken(token)
+                .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND, "Invalid token"));
     }
 
     public User createUser(User newUser) {
@@ -65,15 +65,6 @@ public class UserService {
         return newUser;
     }
 
-    public User getUserByToken(String token)
-    {
-        User user = userRepository.findByToken(token);
-        if (user != null)
-        {
-            return user;
-        }
-        throw new EntityNotFoundException("Invalid token");
-    }
 
     /**
      * This is a helper method that will check the uniqueness criteria of the username and the name
@@ -121,7 +112,7 @@ public class UserService {
 
     //Changes Username/Password/Mail of a user using an id and a user object with the proposed changes
     public void modifyUser(User newUserData, Long userID, String token) {
-        User userById = getUser(userID);
+        User userById = getUserById(userID);
         verifyUser(userById, token);
         if (newUserData.getUsername()!=null){
             if(userRepository.findByUsername(newUserData.getUsername())!=null){
