@@ -250,7 +250,7 @@ public class PortfolioController {
     {
         // Even though we do not need a user, this will make sure
         // a valid token is being used.
-        //userService.getUserByToken(token);
+        userService.getUserByToken(token);
         return FinanceService.getStockInfo(positionCode, "CHF");
     }
 
