@@ -99,11 +99,25 @@ public class PortfolioController {
             }
             if (sorting.compareTo("weekly") == 0)
             {
-                portfolioGetDTOs.sort(Comparator.comparing(PortfolioGetDTO::getWeeklyPerformance));
+                // Sort by weekly performance
+                portfolioGetDTOs.sort(
+                        new Comparator<PortfolioGetDTO>() {
+                            @Override
+                            public int compare(PortfolioGetDTO o1, PortfolioGetDTO o2) {
+                                return o1.getWeeklyPerformance().compareTo(o2.getWeeklyPerformance());
+                            }
+                        });
             }
             else
             {
-                portfolioGetDTOs.sort(Comparator.comparing(PortfolioGetDTO::getTotalPerformance));
+                // Sort by total performance
+                portfolioGetDTOs.sort(
+                        new Comparator<PortfolioGetDTO>() {
+                            @Override
+                            public int compare(PortfolioGetDTO o1, PortfolioGetDTO o2) {
+                                return o1.getTotalPerformance().compareTo(o2.getTotalPerformance());
+                        }
+                });
             }
             return portfolioGetDTOs;
         }
