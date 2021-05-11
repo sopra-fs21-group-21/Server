@@ -4,6 +4,7 @@ import ch.uzh.ifi.hase.soprafs21.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs21.entity.User;
 import ch.uzh.ifi.hase.soprafs21.rest.dto.UserPostDTO;
 import ch.uzh.ifi.hase.soprafs21.rest.dto.UserPutDTO;
+import ch.uzh.ifi.hase.soprafs21.service.MailService;
 import ch.uzh.ifi.hase.soprafs21.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -50,6 +51,9 @@ public class UserControllerTest {
 
     @MockBean
     private UserService userService;
+
+    @MockBean
+    private MailService mailService;
 
     private User testUser;
 
@@ -125,7 +129,7 @@ public class UserControllerTest {
 
         mockMvc.perform(getRequest)
                 .andExpect(status().isNotFound())
-                .andExpect(result -> assertEquals("404 NOT_FOUND \"No such user exists\"", result.getResolvedException().getMessage()));
+                .andExpect(result -> assertEquals("404 NOT_FOUND \"No such user exists\"", Objects.requireNonNull(result.getResolvedException()).getMessage()));
 
     }
 
@@ -169,9 +173,10 @@ public class UserControllerTest {
         userPostDTO.setUsername("testUsername");
         userPostDTO.setPassword("testPassword");
 
-        MockHttpServletRequestBuilder postRequest = post("/users")
+        post("/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(userPostDTO));
+        MockHttpServletRequestBuilder postRequest;
 
         String baseErrorMessage = "The %s provided %s not unique. Therefore, the user could not be created!";
         ResponseStatusException exe = new ResponseStatusException(HttpStatus.CONFLICT, String.format(baseErrorMessage, "username", "is"));
@@ -215,7 +220,7 @@ public class UserControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.put(url).header("token", "a1")
                 .contentType(MediaType.APPLICATION_JSON_VALUE).content(asJsonString(userPutDTO))).andExpect(status().isNotFound())
-                .andExpect(result -> assertEquals("404 NOT_FOUND \"No such user exists\"", result.getResolvedException().getMessage()));
+                .andExpect(result -> assertEquals("404 NOT_FOUND \"No such user exists\"", Objects.requireNonNull(result.getResolvedException()).getMessage()));
     }
 
     //PUT log in user
@@ -249,6 +254,33 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.token", is(testUser.getToken())));
     }
 
+    @Test
+    public void forgotPassword_validInput_noContent() throws Exception {
+        String url = "/users/forgotPassword";
+
+        UserPutDTO userPutDTO = new UserPutDTO();
+        userPutDTO.setUsername("testUsername");
+
+        mockMvc.perform(MockMvcRequestBuilders.put(url)
+                .contentType(MediaType.APPLICATION_JSON_VALUE).content(asJsonString(userPutDTO)))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void forgotPassword_invalidInput_throwNotFound() throws Exception {
+        String url = "/users/forgotPassword";
+
+        UserPutDTO userPutDTO = new UserPutDTO();
+        userPutDTO.setUsername("testUsername");
+
+        String errorMessage = "User with username %s does not exist!";
+        ResponseStatusException exe = new ResponseStatusException(HttpStatus.NOT_FOUND, String.format(errorMessage, userPutDTO.getUsername()));
+        doThrow(exe).when(mailService).forgotPassword(Mockito.anyString());
+
+        mockMvc.perform(MockMvcRequestBuilders.put(url)
+                .contentType(MediaType.APPLICATION_JSON_VALUE).content(asJsonString(userPutDTO))).andExpect(status().isNotFound())
+                .andExpect(result -> assertEquals(exe.getMessage(), Objects.requireNonNull(result.getResolvedException()).getMessage()));
+    }
 
 
     /**
@@ -257,6 +289,7 @@ public class UserControllerTest {
      * @param object
      * @return string
      */
+
     public static String asJsonString(final Object object) {
         try {
             return new ObjectMapper().writeValueAsString(object);

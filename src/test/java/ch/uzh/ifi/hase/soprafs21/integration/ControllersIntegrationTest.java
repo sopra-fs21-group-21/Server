@@ -171,7 +171,7 @@ public class ControllersIntegrationTest {
         UserGetDTO loggedOutUser = userController.getUser("1");
 
         // We check that the user gets displayed as OFFLINE
-        assertEquals(loggedOutUser.getStatus(), UserStatus.OFFLINE);
+        assertEquals(UserStatus.OFFLINE, loggedOutUser.getStatus());
 
         System.out.println("Logout successful");
     }

@@ -79,8 +79,8 @@ public class UserController {
     @ResponseBody
     public UserGetDTO loginUser(@RequestBody UserPutDTO userPutDTO) {
         User userInput = DTOMapper.INSTANCE.convertUserPutDTOtoEntity(userPutDTO);
-        User LoggedInUser = userService.logInUser(userInput);
-        return DTOMapper.INSTANCE.convertEntityToUserGetDTO(LoggedInUser);
+        User loggedInUser = userService.logInUser(userInput);
+        return DTOMapper.INSTANCE.convertEntityToUserGetDTO(loggedInUser);
     }
 
     @PutMapping("/users/logout")

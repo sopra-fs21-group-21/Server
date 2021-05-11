@@ -209,6 +209,7 @@ public class UserServiceTest {
         User newEmptyUser = new User();
 
         // then -> attempt to change user using an empty user object -> check that an error is thrown
-        assertThrows(ResponseStatusException.class, () -> userService.modifyUser(newEmptyUser, 1L, userToModify.getToken()));
+        String usedToken = userToModify.getToken();
+        assertThrows(ResponseStatusException.class, () -> userService.modifyUser(newEmptyUser, 1L, usedToken));
     }
 }

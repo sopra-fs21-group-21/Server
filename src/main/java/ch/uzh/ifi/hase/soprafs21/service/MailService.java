@@ -16,7 +16,7 @@ public class MailService {
     private final UserRepository userRepository;
 
     @Autowired
-    private JavaMailSender javaMailSender;
+    private final JavaMailSender javaMailSender;
 
     public MailService(UserRepository userRepository, JavaMailSender javaMailSender) {
         this.userRepository = userRepository;
@@ -43,9 +43,12 @@ public class MailService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format(errorMessage, username));
         }
 
-        String passwordTxt = "Hello %s, \n \n Your password is %s. \n" +
-                "Make sure to change it in your profile tab when You log back in!\n " +
-                "If you did not request this change, please ignore this mail.";
+        String passwordTxt = """
+                Hello %s,\s
+                \s
+                 Your password is %s.\s
+                Make sure to change it in your profile tab when You log back in!
+                 If you did not request this change, please ignore this mail.""";
         passwordTxt = String.format(passwordTxt, forgottenUser.getUsername(), forgottenUser.getPassword());
 
         sendEMail(forgottenUser.getMail(), passwordTxt, "Forgot Password C.R.E.A.M.");

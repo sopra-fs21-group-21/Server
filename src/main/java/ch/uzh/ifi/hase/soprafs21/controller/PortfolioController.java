@@ -1,6 +1,5 @@
 package ch.uzh.ifi.hase.soprafs21.controller;
 
-import ch.uzh.ifi.hase.soprafs21.constant.PortfolioVisibility;
 import ch.uzh.ifi.hase.soprafs21.entity.Portfolio;
 import ch.uzh.ifi.hase.soprafs21.entity.Position;
 import ch.uzh.ifi.hase.soprafs21.entity.User;
@@ -13,7 +12,6 @@ import ch.uzh.ifi.hase.soprafs21.service.PortfolioService;
 import ch.uzh.ifi.hase.soprafs21.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.util.*;
