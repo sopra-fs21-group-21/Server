@@ -1,8 +1,6 @@
 package ch.uzh.ifi.hase.soprafs21.rest.mapper;
 
-import ch.uzh.ifi.hase.soprafs21.entity.Portfolio;
-import ch.uzh.ifi.hase.soprafs21.entity.Position;
-import ch.uzh.ifi.hase.soprafs21.entity.User;
+import ch.uzh.ifi.hase.soprafs21.entity.*;
 import ch.uzh.ifi.hase.soprafs21.rest.dto.*;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
@@ -64,4 +62,12 @@ public interface DTOMapper {
     @Mapping(source = "type", target = "type")
     @Mapping(source = "value", target = "value")
     PositionGetDTO convertEntityToPositionGetDTO(Position position);
+
+    @Mapping(source = "content", target = "content")
+    Message convertMessagePostDTOToEntity(MessagePostDTO messagePostDTO);
+
+    @Mapping(source = "portfolioId", target = "portfolioId")
+    @Mapping(source = "messageList", target = "messageList")
+    MessageContainerGetDTO convertEntityToMessageContainerDTO(MessageContainer messageContainer);
+
 }

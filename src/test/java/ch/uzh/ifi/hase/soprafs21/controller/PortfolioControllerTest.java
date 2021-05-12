@@ -6,6 +6,7 @@ import ch.uzh.ifi.hase.soprafs21.entity.User;
 import ch.uzh.ifi.hase.soprafs21.rest.dto.PortfolioGetDTO;
 import ch.uzh.ifi.hase.soprafs21.rest.dto.PortfolioPostDTO;
 import ch.uzh.ifi.hase.soprafs21.rest.dto.PositionPostDTO;
+import ch.uzh.ifi.hase.soprafs21.service.ChatService;
 import ch.uzh.ifi.hase.soprafs21.service.PortfolioService;
 import ch.uzh.ifi.hase.soprafs21.service.UserService;
 import org.junit.jupiter.api.Test;
@@ -49,6 +50,9 @@ public class PortfolioControllerTest {
 
     @MockBean
     private UserService userService;
+
+    @MockBean
+    private ChatService chatService;
 
 
     @Test
@@ -97,6 +101,7 @@ public class PortfolioControllerTest {
 
         Portfolio testPortfolio = new Portfolio();
         testPortfolio.setPortfolioName(postDTO.getName());
+        testPortfolio.setId(1L);
 
         Mockito.doReturn(testUser).when(userService).getUserByToken(testUser.getToken());
         Mockito.doReturn(testPortfolio).when(portfolioService).createPortfolio(Mockito.any());

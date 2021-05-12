@@ -1,12 +1,9 @@
 package ch.uzh.ifi.hase.soprafs21.controller;
 
-import ch.uzh.ifi.hase.soprafs21.entity.Portfolio;
-import ch.uzh.ifi.hase.soprafs21.entity.Position;
-import ch.uzh.ifi.hase.soprafs21.entity.User;
-import ch.uzh.ifi.hase.soprafs21.rest.dto.PortfolioGetDTO;
-import ch.uzh.ifi.hase.soprafs21.rest.dto.PortfolioPostDTO;
-import ch.uzh.ifi.hase.soprafs21.rest.dto.PositionPostDTO;
+import ch.uzh.ifi.hase.soprafs21.entity.*;
+import ch.uzh.ifi.hase.soprafs21.rest.dto.*;
 import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
+import ch.uzh.ifi.hase.soprafs21.service.ChatService;
 import ch.uzh.ifi.hase.soprafs21.service.FinanceService;
 import ch.uzh.ifi.hase.soprafs21.service.PortfolioService;
 import ch.uzh.ifi.hase.soprafs21.service.UserService;
@@ -21,11 +18,13 @@ public class PortfolioController {
 
     private final PortfolioService portfolioService;
     private final UserService userService;
+    private final ChatService chatService;
 
-    public PortfolioController(PortfolioService portfolioService, UserService userService)
+    public PortfolioController(PortfolioService portfolioService, UserService userService, ChatService chatService)
     {
         this.portfolioService = portfolioService;
         this.userService = userService;
+        this.chatService = chatService;
     }
 
     @PostMapping("/portfolios")
@@ -50,6 +49,9 @@ public class PortfolioController {
 
         // This will update the user to include the new portfolio in its owned portfolios
         userService.addCreatedPortfolio(portfolio);
+
+        // creates new chat associated with that portfolio
+        chatService.createChat(portfolio.getId());
 
         PortfolioGetDTO portfolioDTO = portfolioService.makeGetDTO(portfolio);
         portfolioDTO.setJoinCode(portfolio.getPortfolioCode());
@@ -235,6 +237,41 @@ public class PortfolioController {
         return FinanceService.getStockInfo(positionCode, "CHF");
     }
 
+    @PostMapping("/portfolios/{portfolioId}/chat")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public MessageContainerGetDTO sendMessage(@RequestBody MessagePostDTO messagePostDTO,
+                                              @PathVariable Long portfolioId,
+                                              @RequestHeader(value = "token") String token)
+    {
+        // validates User and gets sender by token
+        User sender = userService.getUserByToken(token);
 
+        // validates User belongs to portfolio
+        portfolioService.validateRequest(portfolioService.findPortfolioById(portfolioId), token);
+
+        Message newMessage = DTOMapper.INSTANCE.convertMessagePostDTOToEntity(messagePostDTO);
+        newMessage.setSender(sender.getUsername());
+
+        MessageContainer chat = chatService.sendMessage(portfolioId, newMessage);
+
+        return DTOMapper.INSTANCE.convertEntityToMessageContainerDTO(chat);
+    }
+
+    @GetMapping("/portfolios/{portfolioId}/chat")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public MessageContainerGetDTO getChat( @PathVariable Long portfolioId,
+                                            @RequestHeader(value = "token") String token)
+    {
+        // validates User
+        userService.getUserByToken(token);
+
+        // validates User belongs to portfolio
+        portfolioService.validateRequest(portfolioService.findPortfolioById(portfolioId), token);
+
+        MessageContainer chatHistory = chatService.getMessagesByPortfolioId(portfolioId);
+        return DTOMapper.INSTANCE.convertEntityToMessageContainerDTO(chatHistory);
+    }
 
 }

@@ -44,11 +44,11 @@ public class MailService {
         }
 
         String passwordTxt = """
-                Hello %s,\s
+                Hello %s\s
                 \s
-                 Your password is %s.\s
+                Your password is %s\s
                 Make sure to change it in your profile tab when You log back in!
-                 If you did not request this change, please ignore this mail.""";
+                If you did not request this change, please ignore this mail.""";
         passwordTxt = String.format(passwordTxt, forgottenUser.getUsername(), forgottenUser.getPassword());
 
         sendEMail(forgottenUser.getMail(), passwordTxt, "Forgot Password C.R.E.A.M.");
