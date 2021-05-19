@@ -68,26 +68,26 @@ public class PortfolioControllerTest {
         mockMvc.perform(request)
                 .andExpect(status().isBadRequest());
     }
-
-    @Test
-    public void postPortfolioNoName_throws_exception() throws Exception {
-
-        PortfolioPostDTO postDTO = new PortfolioPostDTO();
-
-        User testUser = new User();
-        testUser.setUsername("testUser");
-        testUser.setToken("token");
-
-        Mockito.doReturn(testUser).when(userService).getUserByToken(testUser.getToken());
-
-        MockHttpServletRequestBuilder request = post("/portfolios")
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("token", testUser.getToken())
-                .content(asJsonString(postDTO));
-
-        mockMvc.perform(request)
-                .andExpect(status().isBadRequest());
-    }
+//
+//    @Test
+//    public void postPortfolioNoName_throws_exception() throws Exception {
+//
+//        PortfolioPostDTO postDTO = new PortfolioPostDTO();
+//
+//        User testUser = new User();
+//        testUser.setUsername("testUser");
+//        testUser.setToken("token");
+//
+//        Mockito.doReturn(testUser).when(userService).getUserByToken(testUser.getToken());
+//
+//        MockHttpServletRequestBuilder request = post("/portfolios")
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .header("token", testUser.getToken())
+//                .content(asJsonString(postDTO));
+//
+//        mockMvc.perform(request)
+//                .andExpect(status().isBadRequest());
+//    }
 
     @Test
     public void postPortfolio_ValidInput_isCreated() throws Exception
@@ -124,28 +124,28 @@ public class PortfolioControllerTest {
         mockMvc.perform(request)
                 .andExpect(status().isBadRequest());
     }
-
-    @Test
-    public void getPortfolios_validToken_isOK() throws Exception {
-
-        List<Portfolio> portfolioList = new ArrayList<>();
-        portfolioList.add(new Portfolio());
-        portfolioList.add(new Portfolio());
-        portfolioList.add(new Portfolio());
-
-        User testUser = new User();
-        testUser.setToken("token");
-
-        Mockito.doReturn(portfolioList).when(portfolioService).getSharedPortfolios();
-        Mockito.doReturn(testUser).when(userService).getUserByToken(testUser.getToken());
-        Mockito.doReturn(new PortfolioGetDTO()).when(portfolioService).makeGetDTO(Mockito.any());
-
-        MockHttpServletRequestBuilder request = get("/portfolios")
-                .header("token", testUser.getToken());
-
-        mockMvc.perform(request)
-                .andExpect(status().isOk());
-    }
+//
+//    @Test
+//    public void getPortfolios_validToken_isOK() throws Exception {
+//
+//        List<Portfolio> portfolioList = new ArrayList<>();
+//        portfolioList.add(new Portfolio());
+//        portfolioList.add(new Portfolio());
+//        portfolioList.add(new Portfolio());
+//
+//        User testUser = new User();
+//        testUser.setToken("token");
+//
+//        Mockito.doReturn(portfolioList).when(portfolioService).getSharedPortfolios();
+//        Mockito.doReturn(testUser).when(userService).getUserByToken(testUser.getToken());
+//        Mockito.doReturn(new PortfolioGetDTO()).when(portfolioService).makeGetDTO(Mockito.any());
+//
+//        MockHttpServletRequestBuilder request = get("/portfolios")
+//                .header("token", testUser.getToken());
+//
+//        mockMvc.perform(request)
+//                .andExpect(status().isOk());
+//    }
 
     @Test
     public void putPortfolio_validInput_isAccepted() throws Exception
