@@ -204,7 +204,9 @@ public class UserControllerTest {
         userPutDTO.setUsername("newTestUsername");
 
         mockMvc.perform(MockMvcRequestBuilders.put(url)
-                .contentType(MediaType.APPLICATION_JSON_VALUE).header("token", "a1").content(asJsonString(userPutDTO))).andExpect(status().isNoContent());
+                .contentType(MediaType.APPLICATION_JSON_VALUE).header("token", "a1")
+                .content(asJsonString(userPutDTO)))
+                .andExpect(status().isNoContent());
     }
 
     // PUT modify user. No such user ERROR
@@ -219,7 +221,9 @@ public class UserControllerTest {
         doThrow(exe).when(userService).modifyUser(Mockito.any(), Mockito.any(), Mockito.any());
 
         mockMvc.perform(MockMvcRequestBuilders.put(url).header("token", "a1")
-                .contentType(MediaType.APPLICATION_JSON_VALUE).content(asJsonString(userPutDTO))).andExpect(status().isNotFound())
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(asJsonString(userPutDTO)))
+                .andExpect(status().isNotFound())
                 .andExpect(result -> assertEquals("404 NOT_FOUND \"No such user exists\"", Objects.requireNonNull(result.getResolvedException()).getMessage()));
     }
 
@@ -278,7 +282,9 @@ public class UserControllerTest {
         doThrow(exe).when(mailService).forgotPassword(Mockito.anyString());
 
         mockMvc.perform(MockMvcRequestBuilders.put(url)
-                .contentType(MediaType.APPLICATION_JSON_VALUE).content(asJsonString(userPutDTO))).andExpect(status().isNotFound())
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(asJsonString(userPutDTO)))
+                .andExpect(status().isNotFound())
                 .andExpect(result -> assertEquals(exe.getMessage(), Objects.requireNonNull(result.getResolvedException()).getMessage()));
     }
 

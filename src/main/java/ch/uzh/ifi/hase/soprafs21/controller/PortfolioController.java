@@ -269,7 +269,7 @@ public class PortfolioController {
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public MessageContainerGetDTO getChat( @PathVariable Long portfolioId,
-                                            @RequestHeader(value = "token") String token)
+                                           @RequestHeader(value = "token") String token)
     {
         // validates User
         userService.getUserByToken(token);
@@ -280,5 +280,4 @@ public class PortfolioController {
         MessageContainer chatHistory = chatService.getMessagesByPortfolioId(portfolioId);
         return DTOMapper.INSTANCE.convertEntityToMessageContainerDTO(chatHistory);
     }
-
 }

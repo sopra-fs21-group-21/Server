@@ -91,8 +91,8 @@ public class FinanceService {
         }
         catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
+            return null;
         }
-        return null;
     }
 
     public static Map<String, BigDecimal> getStockInfo(String stock, String currency)
@@ -147,8 +147,8 @@ public class FinanceService {
         }
         catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
+            return null;
         }
-        return null;
     }
 
     /**
@@ -187,12 +187,12 @@ public class FinanceService {
             exchangeRateTemp = body
                     .getJSONObject("Realtime Currency Exchange Rate")
                     .getDouble("5. Exchange Rate");
-            exchangeRate= new BigDecimal(exchangeRateTemp, MathContext.DECIMAL32);
+            exchangeRate= BigDecimal.valueOf(exchangeRateTemp);
             return exchangeRate.multiply(price, MathContext.DECIMAL32);
         }
         catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
+            return null;
         }
-        return null;
     }
 }

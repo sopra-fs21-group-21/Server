@@ -12,7 +12,7 @@ public class MessageContainer {
     private Long portfolioId;
 
     @OneToMany(cascade=CascadeType.ALL)
-    private List<Message> messageList = new ArrayList<Message>();
+    private List<Message> messageList = new ArrayList<>();
 
     public void setMessageList(List<Message> messageList) {
         this.messageList = messageList;

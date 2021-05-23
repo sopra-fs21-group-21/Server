@@ -2,7 +2,6 @@ package ch.uzh.ifi.hase.soprafs21.rest.dto;
 
 import ch.uzh.ifi.hase.soprafs21.entity.Message;
 
-import javax.persistence.OneToMany;
 import java.util.ArrayList;
 
 public class MessageContainerGetDTO {

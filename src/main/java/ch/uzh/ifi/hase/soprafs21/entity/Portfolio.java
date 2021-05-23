@@ -1,7 +1,6 @@
 package ch.uzh.ifi.hase.soprafs21.entity;
 
 import ch.uzh.ifi.hase.soprafs21.constant.PortfolioVisibility;
-import ch.uzh.ifi.hase.soprafs21.constant.PositionType;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -28,7 +27,7 @@ public class Portfolio implements Serializable {
     // This is a many to many relation hence the annotation. In the JPA tutorial it says to use sets with many to many.
 
     @ManyToMany
-    private Set<User> traders = new HashSet<User>();
+    private Set<User> traders = new HashSet<>();
 
     @Column(nullable = false, unique=true)
     private String portfolioName;
@@ -62,7 +61,7 @@ public class Portfolio implements Serializable {
     private Date lastUpdate;
 
     @OneToMany
-    public List<Position> positions = new ArrayList<Position>();
+    public List<Position> positions = new ArrayList<>();
 
     // ===============Getters and setters===============
 
