@@ -9,6 +9,7 @@ import ch.uzh.ifi.hase.soprafs21.service.PortfolioService;
 import ch.uzh.ifi.hase.soprafs21.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -32,6 +33,12 @@ public class PortfolioController {
     @ResponseBody
     public PortfolioGetDTO createNewPortfolio(@RequestBody PortfolioPostDTO postDTO, @RequestHeader(value = "token") String token)
     {
+        // Check that a name was specified
+        if (postDTO.getName() == null || postDTO.getName().isBlank() || postDTO.getName().isEmpty())
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You need to specify the desired name.");
+        }
+
         Portfolio portfolio = DTOMapper.INSTANCE.convertPortfolioPostDTOtoEntity(postDTO);
 
         // Get the owner based on the token of the request;

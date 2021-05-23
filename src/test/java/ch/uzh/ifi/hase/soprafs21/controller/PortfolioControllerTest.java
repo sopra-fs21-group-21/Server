@@ -18,10 +18,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 
 import static ch.uzh.ifi.hase.soprafs21.controller.UserControllerTest.asJsonString;
@@ -68,26 +71,31 @@ public class PortfolioControllerTest {
         mockMvc.perform(request)
                 .andExpect(status().isBadRequest());
     }
-//
-//    @Test
-//    public void postPortfolioNoName_throws_exception() throws Exception {
-//
-//        PortfolioPostDTO postDTO = new PortfolioPostDTO();
-//
-//        User testUser = new User();
-//        testUser.setUsername("testUser");
-//        testUser.setToken("token");
-//
-//        Mockito.doReturn(testUser).when(userService).getUserByToken(testUser.getToken());
-//
-//        MockHttpServletRequestBuilder request = post("/portfolios")
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .header("token", testUser.getToken())
-//                .content(asJsonString(postDTO));
-//
-//        mockMvc.perform(request)
-//                .andExpect(status().isBadRequest());
-//    }
+
+    @Test
+    public void postPortfolioNoName_throws_exception() throws Exception {
+
+        PortfolioPostDTO postDTO = new PortfolioPostDTO();
+
+        User testUser = new User();
+        testUser.setUsername("testUser");
+        testUser.setToken("token");
+
+        Portfolio testPortfolio = new Portfolio();
+        testPortfolio.setId(Long.valueOf(1));
+
+        Mockito.doReturn(testUser).when(userService).getUserByToken(testUser.getToken());
+        Mockito.doReturn(testPortfolio).when(portfolioService).createPortfolio(Mockito.any());
+        Mockito.doNothing().when(chatService).createChat(Mockito.anyLong());
+
+        MockHttpServletRequestBuilder request = post("/portfolios")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("token", testUser.getToken())
+                .content(asJsonString(postDTO));
+
+        mockMvc.perform(request)
+                .andExpect(status().isBadRequest());
+    }
 
     @Test
     public void postPortfolio_ValidInput_isCreated() throws Exception
@@ -113,8 +121,18 @@ public class PortfolioControllerTest {
                 .content(asJsonString(postDTO));
 
         mockMvc.perform(request)
-                .andExpect(status().isCreated());
-
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").hasJsonPath())
+                .andExpect(jsonPath("$.name").hasJsonPath())
+                .andExpect(jsonPath("$.owner").hasJsonPath())
+                .andExpect(jsonPath("$.traders").hasJsonPath())
+                .andExpect(jsonPath("$.cash").hasJsonPath())
+                .andExpect(jsonPath("$.capital").hasJsonPath())
+                .andExpect(jsonPath("$.totValue").hasJsonPath())
+                .andExpect(jsonPath("$.weeklyPerformance").hasJsonPath())
+                .andExpect(jsonPath("$.balance").hasJsonPath())
+                .andExpect(jsonPath("$.portfolioVisibility").hasJsonPath())
+                .andExpect(jsonPath("$.totalPerformance").hasJsonPath());
     }
 
     @Test
@@ -124,28 +142,44 @@ public class PortfolioControllerTest {
         mockMvc.perform(request)
                 .andExpect(status().isBadRequest());
     }
-//
-//    @Test
-//    public void getPortfolios_validToken_isOK() throws Exception {
-//
-//        List<Portfolio> portfolioList = new ArrayList<>();
-//        portfolioList.add(new Portfolio());
-//        portfolioList.add(new Portfolio());
-//        portfolioList.add(new Portfolio());
-//
-//        User testUser = new User();
-//        testUser.setToken("token");
-//
-//        Mockito.doReturn(portfolioList).when(portfolioService).getSharedPortfolios();
-//        Mockito.doReturn(testUser).when(userService).getUserByToken(testUser.getToken());
-//        Mockito.doReturn(new PortfolioGetDTO()).when(portfolioService).makeGetDTO(Mockito.any());
-//
-//        MockHttpServletRequestBuilder request = get("/portfolios")
-//                .header("token", testUser.getToken());
-//
-//        mockMvc.perform(request)
-//                .andExpect(status().isOk());
-//    }
+
+    @Test
+    public void getPortfolios_validToken_isOK() throws Exception {
+
+        List<Portfolio> portfolioList = new ArrayList<>();
+        portfolioList.add(new Portfolio());
+        portfolioList.add(new Portfolio());
+        portfolioList.add(new Portfolio());
+
+        User testUser = new User();
+        testUser.setToken("token");
+
+        PortfolioGetDTO testDTO = new PortfolioGetDTO();
+        testDTO.setTotalPerformance(BigDecimal.valueOf(100));
+
+        Mockito.doReturn(portfolioList).when(portfolioService).getSharedPortfolios();
+        Mockito.doReturn(testUser).when(userService).getUserByToken(testUser.getToken());
+        Mockito.doReturn(testDTO)
+                .when(portfolioService).makeGetDTO(Mockito.any());
+
+        MockHttpServletRequestBuilder request = get("/portfolios")
+                .header("token", testUser.getToken())
+                .header("sort", "total");
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").hasJsonPath())
+                .andExpect(jsonPath("$[0].name").hasJsonPath())
+                .andExpect(jsonPath("$[0].owner").hasJsonPath())
+                .andExpect(jsonPath("$[0].traders").hasJsonPath())
+                .andExpect(jsonPath("$[0].cash").hasJsonPath())
+                .andExpect(jsonPath("$[0].capital").hasJsonPath())
+                .andExpect(jsonPath("$[0].totValue").hasJsonPath())
+                .andExpect(jsonPath("$[0].weeklyPerformance").hasJsonPath())
+                .andExpect(jsonPath("$[0].balance").hasJsonPath())
+                .andExpect(jsonPath("$[0].portfolioVisibility").hasJsonPath())
+                .andExpect(jsonPath("$[0].totalPerformance").hasJsonPath());
+    }
 
     @Test
     public void putPortfolio_validInput_isAccepted() throws Exception
