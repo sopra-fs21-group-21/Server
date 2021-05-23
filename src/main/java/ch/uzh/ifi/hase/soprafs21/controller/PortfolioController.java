@@ -99,6 +99,16 @@ public class PortfolioController {
                             }
                         });
             }
+            else if (sorting.compareTo("balance") == 0)
+            {
+                portfolioGetDTOs.sort(
+                        new Comparator<PortfolioGetDTO>() {
+                            @Override
+                            public int compare(PortfolioGetDTO o1, PortfolioGetDTO o2) {
+                                return o1.getBalance().compareTo(o2.getBalance());
+                            }
+                        });
+            }
             else
             {
                 // Sort by total performance
@@ -111,9 +121,6 @@ public class PortfolioController {
                 });
             }
             return portfolioGetDTOs;
-
-
-
     }
 
 
