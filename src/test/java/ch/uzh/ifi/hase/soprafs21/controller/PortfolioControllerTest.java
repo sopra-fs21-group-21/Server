@@ -1,11 +1,11 @@
 package ch.uzh.ifi.hase.soprafs21.controller;
 
 import ch.uzh.ifi.hase.soprafs21.constant.PositionType;
+import ch.uzh.ifi.hase.soprafs21.entity.Message;
+import ch.uzh.ifi.hase.soprafs21.entity.MessageContainer;
 import ch.uzh.ifi.hase.soprafs21.entity.Portfolio;
 import ch.uzh.ifi.hase.soprafs21.entity.User;
-import ch.uzh.ifi.hase.soprafs21.rest.dto.PortfolioGetDTO;
-import ch.uzh.ifi.hase.soprafs21.rest.dto.PortfolioPostDTO;
-import ch.uzh.ifi.hase.soprafs21.rest.dto.PositionPostDTO;
+import ch.uzh.ifi.hase.soprafs21.rest.dto.*;
 import ch.uzh.ifi.hase.soprafs21.service.ChatService;
 import ch.uzh.ifi.hase.soprafs21.service.PortfolioService;
 import ch.uzh.ifi.hase.soprafs21.service.UserService;
@@ -21,14 +21,14 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
 
 import static ch.uzh.ifi.hase.soprafs21.controller.UserControllerTest.asJsonString;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
@@ -335,4 +335,75 @@ public class PortfolioControllerTest {
                 .andExpect(status().is4xxClientError());
     }
 
+    @Test
+    public void sendMessage_validInput_messageSent() throws Exception {
+        MessagePostDTO messagePostDTO = new MessagePostDTO();
+        messagePostDTO.setContent("Hello World!");
+
+        Message testMessage = new Message();
+        testMessage.setContent("Hello World!");
+        testMessage.setSender("Sender");
+        testMessage.setMessageId(1L);
+
+        User sender = new User();
+        sender.setUsername("Sender");
+        sender.setToken("a1");
+
+        MessageContainer messageContainer = new MessageContainer();
+        messageContainer.addMessage(testMessage);
+        messageContainer.setPortfolioId(1L);
+
+        Mockito.when(userService.getUserByToken(Mockito.anyString())).thenReturn(sender);
+        Mockito.when(chatService.sendMessage(Mockito.anyLong(), Mockito.any())).thenReturn(messageContainer);
+
+        MockHttpServletRequestBuilder request = post("/portfolios/1/chat")
+                .header("token", "a1")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(asJsonString(messagePostDTO));
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.messageList", hasSize(1)))
+                .andExpect(jsonPath("$.messageList.[0].messageId", is(1)))
+                .andExpect(jsonPath("$.messageList.[0].sender", is("Sender")))
+                .andExpect(jsonPath("$.messageList.[0].content", is("Hello World!")))
+                .andExpect(jsonPath("$.messageList.[0].sentAt", notNullValue()))
+                .andExpect(jsonPath("$.portfolioId", is(1)));
+    }
+
+    @Test
+    public void getChat_validInput_getChat() throws Exception {
+        MessagePostDTO messagePostDTO = new MessagePostDTO();
+        messagePostDTO.setContent("Hello World!");
+
+        Message testMessage = new Message();
+        testMessage.setContent("Hello World!");
+        testMessage.setSender("Sender");
+        testMessage.setMessageId(1L);
+
+        User sender = new User();
+        sender.setUsername("Sender");
+        sender.setToken("a1");
+
+        MessageContainer messageContainer = new MessageContainer();
+        messageContainer.addMessage(testMessage);
+        messageContainer.setPortfolioId(1L);
+
+        Mockito.when(userService.getUserByToken(Mockito.anyString())).thenReturn(sender);
+        Mockito.when(chatService.getMessagesByPortfolioId(Mockito.anyLong())).thenReturn(messageContainer);
+
+        MockHttpServletRequestBuilder request = get("/portfolios/1/chat")
+                .header("token", "a1")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(asJsonString(messagePostDTO));
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.messageList", hasSize(1)))
+                .andExpect(jsonPath("$.messageList.[0].messageId", is(1)))
+                .andExpect(jsonPath("$.messageList.[0].sender", is("Sender")))
+                .andExpect(jsonPath("$.messageList.[0].content", is("Hello World!")))
+                .andExpect(jsonPath("$.messageList.[0].sentAt", notNullValue()))
+                .andExpect(jsonPath("$.portfolioId", is(1)));
+    }
 }

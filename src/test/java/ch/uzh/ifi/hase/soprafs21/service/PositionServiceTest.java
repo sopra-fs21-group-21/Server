@@ -5,13 +5,18 @@ import ch.uzh.ifi.hase.soprafs21.entity.Position;
 import ch.uzh.ifi.hase.soprafs21.repository.PositionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.springframework.web.server.ResponseStatusException;
+
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class PositionServiceTest {
 

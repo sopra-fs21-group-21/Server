@@ -1,8 +1,6 @@
 package ch.uzh.ifi.hase.soprafs21.rest.dto;
 
 
-import ch.uzh.ifi.hase.soprafs21.service.PortfolioService;
-
 import java.math.BigDecimal;
 
 public class SmallPortfolioDTO {

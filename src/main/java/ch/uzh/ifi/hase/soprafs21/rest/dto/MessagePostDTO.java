@@ -1,7 +1,5 @@
 package ch.uzh.ifi.hase.soprafs21.rest.dto;
 
-import java.util.Date;
-
 public class MessagePostDTO {
 
     private String content;
