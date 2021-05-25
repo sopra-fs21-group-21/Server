@@ -1,99 +1,108 @@
-# SoPra RESTful Service Template FS21
+# Project C.R.E.A.M. - SoPra Group 21
 
-## Getting started with Spring Boot
+## Introduction
 
--   Documentation: https://docs.spring.io/spring-boot/docs/current/reference/html/index.html
--   Guides: http://spring.io/guides
-    -   Building a RESTful Web Service: http://spring.io/guides/gs/rest-service/
-    -   Building REST services with Spring: http://spring.io/guides/tutorials/bookmarks/
+### Aim of the platform
+Our platform allows users to simulate trading stocks, opening long and short positions, using real time financial data.
+Each user can create several portfolios, each with a starting balance of 100,000 CHF, and trade stocks in the main
+US markets, the Frankfurt market and the Swiss Exchange. Price, as well as the currency exchange rate, are fetched in
+real time.
 
-## Setup this Template with your IDE of choice
+### Additional features
 
-Download your IDE of choice: (e.g., [Eclipse](http://www.eclipse.org/downloads/), [IntelliJ](https://www.jetbrains.com/idea/download/)), [Visual Studio Code](https://code.visualstudio.com/) and make sure Java 15 is installed on your system (for Windows-users, please make sure your JAVA_HOME environment variable is set to the correct version of Java).
+#### Real-time collaboration
+You can collaborate with other users by letting them join one of your portfolios via the join code.
+Each portfolio also has a dedicated trader's chat.
 
-1. File -> Open... -> SoPra Server Template
-2. Accept to import the project as a `gradle project`
+#### Leaderboard
+The leaderboard will show the top-performing portfolios, you will be able to examine them in detail by clicking on them.
 
-To build right click the `build.gradle` file and choose `Run Build`
+#### User profiles
+By clicking on a username in the portfolio page, you will be redirected to a user's profile page, where you can see
+the user's information as well as the portfolios they are trading in.
 
-### VS Code
-The following extensions will help you to run it more easily:
--   `pivotal.vscode-spring-boot`
--   `vscjava.vscode-spring-initializr`
--   `vscjava.vscode-spring-boot-dashboard`
--   `vscjava.vscode-java-pack`
--   `richardwillis.vscode-gradle`
+## Technologies
 
-**Note:** You'll need to build the project first with Gradle, just click on the `build` command in the _Gradle Tasks_ extension. Then check the _Spring Boot Dashboard_ extension if it already shows `soprafs21` and hit the play button to start the server. If it doesn't show up, restart VS Code and check again.
+We are using Java for the backend and JavaScript and React for the frontend.
+The main other frameworks we are using are Spring, Rest, Javamail (for password recovery),
+Heroku PostGREs (persistent storage).
+The financial data is provided by AlphaVantage, who kindly gave us a free license for this project.
 
-## Building with Gradle
+## High level components (backend)
 
-You can use the local Gradle Wrapper to build the application.
+### Financial
+There are three main components dealing with the financial logic of the application. The [FinanceService class](https://github.com/sopra-fs21-group-21/Server/blob/master/src/main/java/ch/uzh/ifi/hase/soprafs21/service/FinanceService.java)
+fetches data from AlphaVantage upon request from other parts of the program.
+The [PositionService class](https://github.com/sopra-fs21-group-21/Server/blob/master/src/main/java/ch/uzh/ifi/hase/soprafs21/service/PositionService.java)
+deals with all open positions (long and short on a stock), it is responsible for updating the prices, which it does by
+updating a position per second constantly and other position-related tasks.
+The [PortfolioService class] is responsible for handling anything portfolio related. Opening and closing a position,
+adding and subtracting cash, computing the total value of a portfolio. Note that this class does not directly access
+financial data or update positions, as that is delegated to the position class, which felt like better encapsulation.
 
-Plattform-Prefix:
+### User & chat
 
--   MAC OS X: `./gradlew`
--   Linux: `./gradlew`
--   Windows: `./gradlew.bat`
+## Launch and deployment
 
-More Information about [Gradle Wrapper](https://docs.gradle.org/current/userguide/gradle_wrapper.html) and [Gradle](https://gradle.org/docs/).
+The project has continuous deployment, meaning that as soon as a commit is pushed to the main branch, the tests are
+executed, and if all tests pass, the project is then deployed to Heroku (host) and to SonarCloud (for code analysis).
+Therefore, just push, everything else will follow.
 
-### Build
+One caution note goes to the database structure. Because we use persistent storage, one should be careful not to break
+the database logic when updating the code.
 
-```bash
-./gradlew build
-```
+## Flow (illustration)
 
-### Run
+Log in into the application. You will see your portfolios and buttons to create or join new ones on the left, and the leaderboard
+on the right. If you want to access your profile and update information, the top-right menu is what you are looking for.
 
-```bash
-./gradlew bootRun
-```
+If you click on a portfolio, you will see it's portfolio page. If you are a trader, you can open positions and chat.
+if not, just enjoy the view.
 
-### Test
+## Roadmap
 
-```bash
-./gradlew test
-```
+Some features that would make nice additions.
 
-### Development Mode
+### Charts
+Yes, we know. You say "finance" and people think charts. Our application does not have charts, but they would fit well.
+You might add charts that show variations of a portfolio value, capital and cash across time.
+Note that charts for a stock price history would be hard to include, as AlphaVantage does not provide historical data
+for all stocks.
 
-You can start the backend in development mode, this will automatically trigger a new build and reload the application
-once the content of a file has been changed and you save the file.
+### Currency trading
+Why not also trade currencies, both standard and crypto? We have the data, and the backend is readily extensible, as we
+foresaw this possibility.
 
-Start two terminal windows and run:
+### Other markets
+In a globalized world, most things finance still seem to focus on the United States (even here in Europe). Most of the data, historical and realtime,
+is on US stocks. Most educational content and research is US-centered. We wanted to give our application a distinctly European touch,
+which is why we are supporting two european (europe != EU) exchanges and using swiss francs as the main currency. It
+would be nice to include markets from the rest of the world (though data is scarce and expensive).
 
-`./gradlew build --continuous`
+## Authors
 
-and in the other one:
+Alessandro Vanzo - github.com/alessandrovanzo
 
-`./gradlew bootRun`
+## License
 
-If you want to avoid running all tests with every change, use the following command instead:
+MIT License
 
-`./gradlew build --continuous -xtest`
+Copyright (c) [2021] [Alessandro Vanzo]
 
-## API Endpoint Testing
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-### Postman
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
--   We highly recommend to use [Postman](https://www.getpostman.com) in order to test your API Endpoints.
-
-## Debugging
-
-If something is not working and/or you don't know what is going on. We highly recommend that you use a debugger and step
-through the process step-by-step.
-
-To configure a debugger for SpringBoot's Tomcat servlet (i.e. the process you start with `./gradlew bootRun` command),
-do the following:
-
-1. Open Tab: **Run**/Edit Configurations
-2. Add a new Remote Configuration and name it properly
-3. Start the Server in Debug mode: `./gradlew bootRun --debug-jvm`
-4. Press `Shift + F9` or the use **Run**/Debug"Name of your task"
-5. Set breakpoints in the application where you need it
-6. Step through the process one step at a time
-
-## Testing
-
-Have a look here: https://www.baeldung.com/spring-boot-testing
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
