@@ -51,6 +51,8 @@ Therefore, just push, everything else will follow.
 One caution note goes to the database structure. Because we use persistent storage, one should be careful not to break
 the database logic when updating the code.
 
+If you run the application locally the port is localhost:8080.
+
 ## Flow (illustration)
 
 Log in into the application. You will see your portfolios and buttons to create or join new ones on the left, and the leaderboard
