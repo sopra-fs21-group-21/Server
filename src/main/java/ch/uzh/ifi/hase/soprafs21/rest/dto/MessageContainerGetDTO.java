@@ -3,6 +3,7 @@ package ch.uzh.ifi.hase.soprafs21.rest.dto;
 import ch.uzh.ifi.hase.soprafs21.entity.Message;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MessageContainerGetDTO {
     private Long portfolioId;
@@ -17,11 +18,11 @@ public class MessageContainerGetDTO {
         this.portfolioId = portfolioId;
     }
 
-    public ArrayList<Message> getMessageList() {
+    public List<Message> getMessageList() {
         return messageList;
     }
 
-    public void setMessageList(ArrayList<Message> messageList) {
+    public void setMessageList(List<Message> messageList) {
         this.messageList = messageList;
     }
 }
