@@ -91,7 +91,7 @@ public class FinanceService {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid stock code.");
             }
             BigDecimal originalPrice = body
-                    .getJSONObject("Global Quote")
+                    .getJSONObject(GLOBAL_QUOTE)
                     .getBigDecimal("05. price");
             return convertPrice(stock, originalPrice, currency);
         }
