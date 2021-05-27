@@ -47,8 +47,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
-    implementation platform('com.amazonaws:aws-java-sdk-bom:1.11.+')
     implementation 'com.amazonaws:aws-java-sdk-s3'
+    implementation platform('com.amazonaws:aws-java-sdk-bom:1.11.+')
     implementation('org.postgresql:postgresql')
 
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
