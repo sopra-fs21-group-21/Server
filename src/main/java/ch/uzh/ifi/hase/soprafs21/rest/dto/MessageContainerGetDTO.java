@@ -8,7 +8,7 @@ import java.util.List;
 public class MessageContainerGetDTO {
     private Long portfolioId;
 
-    private ArrayList<Message> messageList = new ArrayList<>();
+    private List<Message> messageList = new ArrayList<>();
 
     public Long getPortfolioId() {
         return portfolioId;
