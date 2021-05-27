@@ -26,8 +26,14 @@ import java.util.regex.Pattern;
 public class FinanceService {
 
     // request endpoint address including Api Key
-    private static final String apiKey = "0W9NIFEZ05JB1L3U";
-    private static final String address = "https://www.alphavantage.co/query?apikey=" + apiKey;
+    private static final String API_KEY = "0W9NIFEZ05JB1L3U";
+    private static final String ADDRESS = "https://www.alphavantage.co/query?apikey=" + API_KEY;
+
+    private static final String GLOBAL_QUOTE = "Global Quote";
+
+    private FinanceService() {
+        throw new IllegalStateException("Utility class");
+    }
 
     /**
      * Returns the original currency of a stock
@@ -62,7 +68,7 @@ public class FinanceService {
     {
 
         // I spent a bunch of hours on this and couldn't find a prettier way to add URI parameters
-        String specificAddress = address +
+        String specificAddress = ADDRESS +
                 "&function=GLOBAL_QUOTE" +
                 "&symbol=" + stock;
 
@@ -80,7 +86,7 @@ public class FinanceService {
         try {
             JSONObject body = new JSONObject(response.get().body());
             // Check that the response is valid
-            if (!body.getJSONObject("Global Quote").has("05. price"))
+            if (!body.getJSONObject(GLOBAL_QUOTE).has("05. price"))
             {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid stock code.");
             }
@@ -99,7 +105,7 @@ public class FinanceService {
     {
 
         // I spent a bunch of hours on this and couldn't find a prettier way to add URI parameters
-        String specificAddress = address +
+        String specificAddress = ADDRESS +
                 "&function=GLOBAL_QUOTE" +
                 "&symbol=" + stock;
 
@@ -113,28 +119,29 @@ public class FinanceService {
         CompletableFuture<HttpResponse<String>> response = client
                 .sendAsync(request, HttpResponse.BodyHandlers.ofString());
 
-        Map<String, BigDecimal> stockInformation = new HashMap();
+        Map<String, BigDecimal> stockInformation = new HashMap<>();
+
         // We may or may not have got a response, hence the try-catch syntax
         try {
             JSONObject body = new JSONObject(response.get().body());
             // Check that the response is valid
-            if (!body.getJSONObject("Global Quote").has("05. price"))
+            if (!body.getJSONObject(GLOBAL_QUOTE).has("05. price"))
             {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid stock code.");
             }
             // Insert current price
             BigDecimal originalPrice = body
-                    .getJSONObject("Global Quote")
+                    .getJSONObject(GLOBAL_QUOTE)
                     .getBigDecimal("05. price");
             stockInformation.put("currentPrice", convertPrice(stock, originalPrice, currency));
             // Insert trading volume (i.e. number of stocks traded)
             BigDecimal tradingVolume = body
-                    .getJSONObject("Global Quote")
+                    .getJSONObject(GLOBAL_QUOTE)
                     .getBigDecimal("06. volume");
             stockInformation.put("lastDayVolume", tradingVolume);
             // Insert previous day close
             BigDecimal previousClose = body
-                    .getJSONObject("Global Quote")
+                    .getJSONObject(GLOBAL_QUOTE)
                     .getBigDecimal("08. previous close");
             stockInformation.put("lastDayClose",
                     convertPrice(stock, previousClose, currency));
@@ -155,14 +162,14 @@ public class FinanceService {
      * Converts the price of a given stock to the target currency. The currency of the stock price
      * is inferred based on the exchange the stock is listed on through a regex.
      */
-    public static BigDecimal convertPrice(String stock, BigDecimal price, String target_currency)
+    public static BigDecimal convertPrice(String stock, BigDecimal price, String targetCurrency)
     {
-        String source_currency = findCurrency(stock);
+        String sourceCurrency = findCurrency(stock);
         // address of the request
-        String specificAddress = address +
+        String specificAddress = ADDRESS +
                 "&function=CURRENCY_EXCHANGE_RATE" +
-                "&from_currency=" + source_currency +
-                "&to_currency=" + target_currency;
+                "&from_currency=" + sourceCurrency +
+                "&to_currency=" + targetCurrency;
 
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder().uri(
@@ -172,7 +179,7 @@ public class FinanceService {
         CompletableFuture<HttpResponse<String>> response = client
                 .sendAsync(request, HttpResponse.BodyHandlers.ofString());
 
-        if (source_currency.compareTo(target_currency) == 0)
+        if (sourceCurrency.compareTo(targetCurrency) == 0)
         {
             return price;
         }

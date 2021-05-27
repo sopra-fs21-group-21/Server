@@ -41,7 +41,7 @@ public class PortfolioController {
 
         Portfolio portfolio = DTOMapper.INSTANCE.convertPortfolioPostDTOtoEntity(postDTO);
 
-        // Get the owner based on the token of the request;
+        // Get the owner based on the token of the request
         // It will also throw an exception if the token is not associated to any user
 
         User owner = userService.getUserByToken(token);
@@ -99,33 +99,18 @@ public class PortfolioController {
             {
                 // Sort by weekly performance
                 portfolioGetDTOs.sort(
-                        new Comparator<PortfolioGetDTO>() {
-                            @Override
-                            public int compare(PortfolioGetDTO o1, PortfolioGetDTO o2) {
-                                return o1.getWeeklyPerformance().compareTo(o2.getWeeklyPerformance());
-                            }
-                        });
+                        Comparator.comparing(PortfolioGetDTO::getWeeklyPerformance));
             }
             else if (sorting.compareTo("balance") == 0)
             {
                 portfolioGetDTOs.sort(
-                        new Comparator<PortfolioGetDTO>() {
-                            @Override
-                            public int compare(PortfolioGetDTO o1, PortfolioGetDTO o2) {
-                                return o1.getBalance().compareTo(o2.getBalance());
-                            }
-                        });
+                        Comparator.comparing(PortfolioGetDTO::getBalance));
             }
             else
             {
                 // Sort by total performance
                 portfolioGetDTOs.sort(
-                        new Comparator<PortfolioGetDTO>() {
-                            @Override
-                            public int compare(PortfolioGetDTO o1, PortfolioGetDTO o2) {
-                                return o1.getTotalPerformance().compareTo(o2.getTotalPerformance());
-                        }
-                });
+                        Comparator.comparing(PortfolioGetDTO::getTotalPerformance));
             }
             return portfolioGetDTOs;
     }

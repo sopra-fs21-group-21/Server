@@ -8,6 +8,6 @@ import java.util.Optional;
 
 @Repository("portfolioRepository")
 public interface PortfolioRepository extends JpaRepository <Portfolio, Long> {
-    Optional<Portfolio> findPortfolioByPortfolioCode(String PortfolioCode);
+    Optional<Portfolio> findPortfolioByPortfolioCode(String portfolioCode);
     boolean existsByPortfolioName(String portfolioName);
 }

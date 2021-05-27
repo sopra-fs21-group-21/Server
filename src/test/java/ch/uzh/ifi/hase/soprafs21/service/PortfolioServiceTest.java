@@ -174,7 +174,8 @@ public class PortfolioServiceTest {
         Mockito.when(positionService.openPosition(Mockito.any())).thenReturn(testPosition);
         Mockito.when(portfolioRepository.findById(Mockito.any())).thenReturn(Optional.of(portfolio));
 
-        assertThrows(ResponseStatusException.class, () -> portfolioService.openPosition(portfolio.getId(), testPosition));
+        long testedPortfolioId = portfolio.getId();
+        assertThrows(ResponseStatusException.class, () -> portfolioService.openPosition(testedPortfolioId, testPosition));
     }
 
     @Test
@@ -202,7 +203,8 @@ public class PortfolioServiceTest {
         
         Mockito.when(portfolioRepository.findById(Mockito.any())).thenReturn(Optional.of(portfolio));
 
-        assertThrows(ResponseStatusException.class, () -> portfolioService.closePosition(portfolio.getId(), 1L));
+        long testedPortfolioId = portfolio.getId();
+        assertThrows(ResponseStatusException.class, () -> portfolioService.closePosition(testedPortfolioId, 1L));
     }
 
     @Test
@@ -217,6 +219,7 @@ public class PortfolioServiceTest {
         Mockito.when(portfolioRepository.findPortfolioByPortfolioCode(Mockito.any())).thenReturn(Optional.ofNullable(portfolio));
 
         // The trader gets added to the Portfolio with that join code
+        assert portfolio != null;
         portfolioService.addTraderToPortfolio(portfolio.getPortfolioCode(), testUser2.getToken());
 
         //Check that the user is indeed a trader of said portfolio
@@ -235,6 +238,7 @@ public class PortfolioServiceTest {
         Mockito.when(portfolioRepository.findPortfolioByPortfolioCode(Mockito.any())).thenReturn(Optional.empty());
 
         // An error gets thrown, because the joinCode is wrong
-        assertThrows(ResponseStatusException.class, () -> portfolioService.addTraderToPortfolio("wrongCode", testUser2.getToken()));
+        String testUser2Token = testUser2.getToken();
+        assertThrows(ResponseStatusException.class, () -> portfolioService.addTraderToPortfolio("wrongCode", testUser2Token));
     }
 }
