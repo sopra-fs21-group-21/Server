@@ -135,7 +135,7 @@ public class PositionService {
                 Thread.sleep(1000);
             }
             catch (InterruptedException e) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Something went wrong during the position update. Please try again");
+                Thread.currentThread().interrupt();
             }
         }
     }

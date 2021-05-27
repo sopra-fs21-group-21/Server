@@ -90,8 +90,9 @@ public class FinanceService {
             return convertPrice(stock, originalPrice, currency);
         }
         catch (InterruptedException | ExecutionException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Something went wrong during the retrieval of the stock price. Please try again");
+            Thread.currentThread().interrupt();
         }
+        return null;
     }
 
     public static Map<String, BigDecimal> getStockInfo(String stock, String currency)
@@ -145,8 +146,9 @@ public class FinanceService {
             return stockInformation;
         }
         catch (InterruptedException | ExecutionException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Something went wrong during the retrieval of stock information. Please try again");
+            Thread.currentThread().interrupt();
         }
+        return null;
     }
 
     /**
@@ -189,7 +191,8 @@ public class FinanceService {
             return exchangeRate.multiply(price, MathContext.DECIMAL32);
         }
         catch (InterruptedException | ExecutionException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Something went wrong during price conversion. Please try again");
+            Thread.currentThread().interrupt();
         }
+        return null;
     }
 }
