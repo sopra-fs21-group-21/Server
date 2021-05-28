@@ -1,6 +1,8 @@
 package ch.uzh.ifi.hase.soprafs21.entity;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 @Entity
@@ -11,7 +13,7 @@ public class Message {
     private Long messageId;
 
     @Column
-    private Date sentAt = new Date();
+    private String sentAt = LocalDateTime.now().format(DateTimeFormatter.ofPattern("MM-dd HH:mm"));
 
     @Column
     private String content;
@@ -28,11 +30,11 @@ public class Message {
         return messageId;
     }
 
-    public void setSentAt(Date sentAt) {
+    public void setSentAt(String sentAt) {
         this.sentAt = sentAt;
     }
 
-    public Date getSentAt() {
+    public String getSentAt() {
         return sentAt;
     }
 
