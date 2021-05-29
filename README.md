@@ -43,10 +43,10 @@ financial data or update positions, as that is delegated to the position class, 
 ### User & chat
 
 Most of the User management is handled through the [UserService class](https://github.com/sopra-fs21-group-21/Server/blob/master/src/main/java/ch/uzh/ifi/hase/soprafs21/service/UserService.java). It implements all the basic user functionality, like registering or logging in. 
-The [MailService class](https://github.com/sopra-fs21-group-21/Server/blob/master/src/main/java/ch/uzh/ifi/hase/soprafs21/service/MailService.java) is only used for password recovery at the moment. It could easily be expanded upon to include different e-mail types.
+The [MailService class](https://github.com/sopra-fs21-group-21/Server/blob/master/src/main/java/ch/uzh/ifi/hase/soprafs21/service/MailService.java) is only used for password recovery at the moment. It could easily be expanded upon to include different email types.
 
-Every portfolio has a chat associated with in in which users can communicate with eachother.
-The [ChatService class](https://github.com/sopra-fs21-group-21/Server/blob/master/src/main/java/ch/uzh/ifi/hase/soprafs21/service/ChatService.java) handles the sending and recieving of chat messages to other users of the same portfolio.
+Every portfolio has a chat associated with it, in which users can communicate with each other.
+The [ChatService class](https://github.com/sopra-fs21-group-21/Server/blob/master/src/main/java/ch/uzh/ifi/hase/soprafs21/service/ChatService.java) handles the sending and recieveing of chat messages to other users of the same portfolio.
 
 ## Launch and deployment
 
