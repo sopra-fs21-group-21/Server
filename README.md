@@ -42,6 +42,12 @@ financial data or update positions, as that is delegated to the position class, 
 
 ### User & chat
 
+Most of the User management is handled through the [UserService class](https://github.com/sopra-fs21-group-21/Server/blob/master/src/main/java/ch/uzh/ifi/hase/soprafs21/service/UserService.java). It implements all the basic user functionality, like registering or logging in. 
+The [MailService class](https://github.com/sopra-fs21-group-21/Server/blob/master/src/main/java/ch/uzh/ifi/hase/soprafs21/service/MailService.java) is only used for password recovery at the moment. It could easily be expanded upon to include different e-mail types.
+
+Every portfolio has a chat associated with in in which users can communicate with eachother.
+The [ChatService class](https://github.com/sopra-fs21-group-21/Server/blob/master/src/main/java/ch/uzh/ifi/hase/soprafs21/service/ChatService.java) handles the sending and recieving of chat messages to other users of the same portfolio.
+
 ## Launch and deployment
 
 The project has continuous deployment, meaning that as soon as a commit is pushed to the main branch, the tests are
@@ -85,12 +91,13 @@ would be nice to include markets from the rest of the world (though data is scar
 
 * Alessandro Vanzo - [@Alessandro](http://github.com/alessandrovanzo)
 * Karim Khamaisi   - [@Karim](http://github.com/Karimkh31)
+* Krzysztof Wroblewski   - [@Krzysztof](http://github.com/krwro)
 
 ## License
 
 MIT License
 
-Copyright (c) [2021] [Alessandro Vanzo]
+Copyright (c) [2021] [Alessandro Vanzo, Krzysztof Wroblewski]
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
