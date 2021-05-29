@@ -2,8 +2,9 @@ package ch.uzh.ifi.hase.soprafs21.entity;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
+import java.time.temporal.ChronoUnit;
 
 @Entity
 @Table(name="MESSAGE")
@@ -13,7 +14,7 @@ public class Message {
     private Long messageId;
 
     @Column
-    private String sentAt = LocalDateTime.now().format(DateTimeFormatter.ofPattern("MM-dd HH:mm"));
+    private String sentAt = LocalDateTime.now(ZoneId.of("UTC+02:00")).format(DateTimeFormatter.ofPattern("MM-dd HH:mm"));
 
     @Column
     private String content;
