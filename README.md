@@ -36,7 +36,7 @@ fetches data from AlphaVantage upon request from other parts of the program.
 The [PositionService class](https://github.com/sopra-fs21-group-21/Server/blob/master/src/main/java/ch/uzh/ifi/hase/soprafs21/service/PositionService.java)
 deals with all open positions (long and short on a stock), it is responsible for updating the prices, which it does by
 updating a position per second constantly and other position-related tasks.
-The [PortfolioService class] is responsible for handling anything portfolio related. Opening and closing a position,
+The [PortfolioService class](https://github.com/sopra-fs21-group-21/Server/blob/master/src/main/java/ch/uzh/ifi/hase/soprafs21/service/PortfolioService.java) is responsible for handling anything portfolio related. Opening and closing a position,
 adding and subtracting cash, computing the total value of a portfolio. Note that this class does not directly access
 financial data or update positions, as that is delegated to the position class, which felt like better encapsulation.
 
