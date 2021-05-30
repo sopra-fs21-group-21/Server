@@ -97,7 +97,7 @@ would be nice to include markets from the rest of the world (though data is scar
 
 MIT License
 
-Copyright (c) [2021] [Alessandro Vanzo, Krzysztof Wroblewski]
+Copyright (c) [2021] [Alessandro Vanzo, Krzysztof Wroblewski,Karim Khamaisi]
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
